@@ -125,9 +125,6 @@ Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-
 <a name="javascriptsdk" title="JavaScript SDK"></a>
 # JavaScript SDK
 
-## How to Use the SDK
-
-
 ## Including the SDK 
 
 The SDK is located here: `https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js`
@@ -137,6 +134,54 @@ You need to include it in your HTML form by adding a `<script>` element in eithe
 <head>
     <script src="https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js"></script>
 </head>
+
+
+<a name="startfunction" title="Start Function"></a>
+## Start Function
+
+The start function initiates the authentication process. This function handles the device fingerprinting and returns the _deviceFingerprintingId_ parameter used for the Authentication request.
+
+The function signature is as follows:
+
+`start(apiKey, StartOptions, TdsCallback)`
+
+|Element                    |Type       |Description |
+|---                        |---        |---    |
+|apiKey                     |string     |This is your Base64-encoded API key, available in the Business Portal.|
+|startOptions               |object     |This is used to handle device fingerprinting.   |
+|TdsCallback                |function   |   |
+
+<a name="challengefunction" title="Challenge Function"></a>
+## Challenge Function
+
+The challenge function handles the challenge flow if the card issuer requires additional customer verification (_threeDResult_=_C_).
+
+The function signature is as follows:
+
+`challenge(apiKey, ChallengeOptions, TdsCallback)`
+
+|Element                    |Type       |Description |
+|---                        |---        |---    |
+|apiKey                     |string     |This is your Base64-encoded API key, available in the Business Portal.|
+|ChallengeOptions           |object     |This is used to handle the challenge flow.   |
+|TdsCallback                |function   |   |
+
+<a name="startoptions" title="Start Options"></a>
+## Start Options
+
+|Element                    |Type       |Description |
+|---                        |---        |---    |
+|accountID                  |string     |This is|
+|card                       |object     |This is    |
+|environment                |string     |   |
+
+<a name="challengeoptions" title="Challenge Options"></a>
+## Challenge Options
+
+|Element                    |Type       |Description |
+|---                        |---        |---    |
+|sdkChallengePayload        |string     |This is |
+|environment                |string     |   |
 
 <a name="usingtheapi" title="Using The API"></a>
 # Using the API
