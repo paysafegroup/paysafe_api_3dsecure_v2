@@ -1,0 +1,2313 @@
+FORMAT: 1A
+HOST: https://api.test.paysafe.com/threedsecure/
+
+# Paysafe 3D Secure Version 2.0 API - DRAFT
+
+# Release Notes
+
+| Version   | Date          | Details |
+|---        |---            |---      |
+| 2.0       | March 2019    | <ul><li>Document release</li></ul>|
+
+# Overview 
+
+Paysafe 3DS 2.0 offers speed and security by allowing card issuers to authenticate cardholders using contextual data, only requiring additional customer verification for a small percentage of high-risk transactions. This process allows for faster consumer checkout while also adhering to the strong customer authentication (SCA) requirements. 
+
+**Note:** Paysafe is compliant to 3D Secure version 2.1.0. 3D Secure is currently supported for Visa and Mastercard brands only. Contact your account manager for more information.
+
+An overview of the steps in a browser-based 3D Secure cardholder authentication are shown below. For a detailed description of individual scenarios, click [here](#usingtheapi).
+<!---For a detailed description, see the [Introduction to 3D Secure](https://developer.paysafe.com/en/rest-apis/3ds/getting-started/introduction-to-3d-secure/).--->
+
+![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2APIBrowserOverview.png)
+
+**Setup and Device Collection**
+
+- Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject).
+
+- The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
+
+**3DS Authentication**
+
+- The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned by the JavaScript SDK.
+
+- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_ parameters along with the _authenticationId_. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
+
+**Challenge Flow**
+
+- The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+
+- The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
+
+- Once the challenge is complete, the JavaScript SDK stores the 3DS Authentication result fields in the Paysafe 3DS 2.0 API and notifies the merchant.
+
+- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
+
+**Card API Authorization Request**
+
+- The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
+
+- Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authorized, fraud liability is typically shifted from the merchant to the bank.
+
+<a name="apikey" title="Authentication"></a>
+# Authentication
+
+In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
+
+  * Key Username - MerchantXYZ
+  * Key Password - B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
+
+**Note:** This is not the same as your Merchant Back Office username and password.
+
+The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
+
+1. The Key Username and Key Password are combined into a string separated by a colon, e.g.,“Key Username:Key Password”.
+
+2. The resulting string literal is then encoded using Base64.
+
+3. The authorization method and a space (i.e., “Basic”) are then put before the encoded string.
+
+For example, using the Key Username and Password examples above, the header is formed as follows:
+
+``Authorization: Basic
+TWVyY2hhbnRYWVo6Qi10c3QxLTAtNTFlZDM5ZTQtMzEyZDAyMzQ1ZDNmMTIzMTIwODgxZGZmOWJiNDAyMGE4OWU4YWM0NGNkZmRjZWNkNzAyMTUxMTgyZmRjOTU yMjcyNjYxZDI5MGFiMmU1ODQ5ZTMxYmIwM2RlZWRlN2U=``
+
+For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+**Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+
+# URLs
+
+## Test URL
+
+In order to test your integration with Paysafe, use the following Test URL:
+
+``https://api.test.paysafe.com``
+
+For example:
+
+``https://api.test.paysafe.com/threedsecure/v2/accounts/{account_id}``
+
+## Production URL
+
+In order to process live requests with Paysafe, use the following Production URL:
+
+``https://api.paysafe.com``
+
+For example:
+
+``https://api.paysafe.com/threedsecure/v2/accounts/{account_id}``
+
+<a name="globalinvalidcharacters" title="Global Invalid Characters"></a>
+# Global Invalid Characters
+
+You must not include any of the characters in the following table as values in any of your request parameters. If you do, your request will result in an error.
+
+|    Character    |    HEX    |    Description                     |
+|-----------------|-----------|------------------------------------|
+| "               | 22        | Double quotes (or speech marks)    |
+| ;               | 3B        | Semicolon                          |
+| ^               | 5E        | Caret, circumflex                  |
+| *               | 2A        | Asterisk                           |
+| <               | 3C        | Less than (or open angled bracket) |
+| /               | 2F        | Slash or divide                    |
+| [               | 5B        | Opening bracket                    |
+| ]               | 5D        | Closing bracket                    |
+| \               | 5C        | Backslash                          |
+
+<!---# Testing Instructions
+
+The Paysafe Test environment can be used to test websites or applications without actually running transactions through a live 3D Secure service. It is important to make sure that your systems are working correctly before going into a live environment. Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/testing-instructions/) for details of how to use the test environment.
+
+# 3D Secure Results
+
+Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-secure-results-and-liability-shift/) for details of 3D Secure results and liability shift.--->
+
+<a name="sdk" title="SDK"></a>
+# JavaScript SDK
+
+## How to Use the SDK
+
+
+## Including the SDK 
+
+The SDK is located here: `https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js`
+
+<a name="usingtheapi" title="Using The API"></a>
+# Using the API
+
+## Scenarios
+
+You can use the 3D Secure 2.0 REST APIs to authenticate a credit card when it is being used for an online purchase request. This enables you to process transactions through the Card Payments API that are fully 3D Secure.
+
+See the scenarios below describing the steps in some typical 3D Secure API processes.
+
+### Browser Flow with "Frictionless" Authentication
+
+A "frictionless" authentication flow occurs when the card issuer determines that it has received enough contextual data to proceed with the authentication without requiring additional customer verification (challenge). This new flow streamlines the consumer checkout experience by reducing additional customer verification steps for low-risk transactions.
+
+This scenario illustrates a typical process where the card issuer does not challenge the request and the cardholder is successfully authenticated.
+
+**API to use:** 3D Secure 2.0 API + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
+
+![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserFrictionless.png)
+
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+
+1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
+
+1. The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
+
+1. The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned in step 3.
+
+1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
+
+1. Paysafe links the authentication to the customer's card and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
+
+1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the above values along with the original card details.
+
+1. Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authorized, fraud liability is typically shifted from the merchant to the bank.
+
+### Browser Flow with an Issuer Challenge
+
+This scenario illustrates a typical process where the card issuer challenges the request and the cardholder is successfully authenticated.
+
+**API to use:** 3D Secure 2.0 API + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
+
+![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserChallenge.png)
+
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+
+1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
+
+1. The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
+
+1. The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned in step 3.
+
+1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
+
+1. Paysafe links the authentication to the customer's card and returns a response to the merchant, which contains the _threeDResult_, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
+
+1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+
+1. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
+
+1. Once the challenge is complete, the JavaScript SDK stores the 3DS Authentication result fields in the Paysafe 3DS 2.0 API and notifies the merchant.
+
+1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. 
+
+1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
+
+1. Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authorized, fraud liability is typically shifted from the merchant to the bank.
+
+<a name="browserflowwithfallback" title="Browser Flow with Fallback"></a>
+### Browser Flow with a Fallback to 3DS 1.0
+
+The Paysafe 3DS 2.0 API and 3DS JavaScript SDK are capable of supporting card issuers that have not yet transferred from 3DS 1.0. The JavaScript SDK is able to interpret the fields based on the 3DS version being used and handle the flow accordingly. This fallback is integrated seamlessly into the JavaScript SDK so you will not need to adjust the authentication flow; the steps remain the same as those for 3DS 2.0.
+
+**API to use:** [3D Secure 2.0 API](#usingtheapi) + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
+
+### Mobile Flow
+
+Coming Soon!
+
+## API Endpoints
+
+The 3D Secure API allows merchants to verify whether a credit card being used for an online transaction is registered in the 3D Secure program, and, if it is, to then use 3D Secure to authenticate that card. The REST protocol uses JSON for all requests and responses.
+
+The following request type is supported: 
+
+  * [Authentications](#authentications)
+  
+**API Endpoint**
+
+`https://api.paysafe.com/threedsecure/v2/accounts/{account_id}`
+
+**Resource Patterns**
+
+|Endpoint URL                                       |Description                                        |Action |
+|---                                                |---                                                |---    |
+|/authentications                                   |Authenticate a card with 3D Secure                 |POST   |
+|/authentications/{authentication_id}               |Look up an Authentication request                  |GET    |
+
+
+
+<!---# Getting Started
+
+You can use the 3D Secure REST APIs to verify whether a credit card is enrolled for the 3D Secure service, and then, if it is, to authenticate that credit card when it is being used for an online purchase request. This enables you to process transactions through the Card Payments API that are fully 3D Secure. Click [here](https://developer.paysafe.com/en/rest-apis/3ds/using-the-api/scenarios/) for descriptions of the main scenarios.--->
+
+
+<a name="isostandards" title="ISO Standards"></a>
+# ISO Standards
+
+<a name="CurrencyCodes" title="Currency Codes"></a>
+## Currency Codes
+
+**Note:**
+ * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency. 
+ * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
+
+|Currency |Code |
+|--- |--- |
+|Argentine Peso |ARS |
+|Australian Dollar  |AUD |
+|Azerbaijanian Manat    |AZN |
+|Bahraini Dinar |BHD  |
+|Belarusian Ruble   |BYR  |
+|Bolivian Boliviano |BOB  |
+|Bosnia and Herzegovina Convertible Mark |BAM  |
+|Brazilian Real |BRL  |
+|Bulgarian Lev  |BGN  |
+|Canadian Dollar    |CAD  |
+|Chilean Peso   |CLP  |
+|China Yuan Renminbi    |CNY  |
+|Columbian Peso |COP  |
+|Costa Rican Colon  |CRC  |
+|Croatian Kuna  |HRK  |
+|Czech Koruna   |CZK  |
+|Danish Krone   |DKK  |
+|Dominican Peso |DOP  |
+|East Caribbean Dollar  |XCD  |
+|Egyptian Pound |EGP  |
+|Ethiopian Birr |ETB  |
+|Euro   |EUR  |
+|Fiji Dollar    |FJD  |
+|Georgian Lari  |GEL  |
+|Guatemala Quetzal  |GTQ  |
+|Haiti Goude    |HTG  |
+|Honduran Lempira   |HNL  |
+|Hong Kong Dollar   |HKD  |
+|Hungarian Forint   |HUF  |
+|Iceland Krona  |ISK  |
+|Indian Rupee   |INR  |
+|Indonesia Rupiah   |IDR  |
+|Iranian Rial   |IRR  |
+|Jamaican Dollar    |JMD  |
+|Japanese Yen   |JPY  |
+|Jordanian Dinar    |JOD  |
+|Kazakhstan Tenge   |KZT  |
+|Kenyan Shilling    |KES  |
+|Korean Won |KRW  |
+|Kuwaiti Dinar  |KWD  |
+|Latvian Lats   |LVL  |
+|Lebanese Pound |LBP  |
+|Libyan Dinars  |LYD  |
+|Lithuanian Litas   |LTL  |
+|Malawi Kwacha  |MWK  |
+|Malaysian Ringgit  |MYR  |
+|Mauritius Rupee    |MUR  |
+|Mexican Peso   |MXN  |
+|Moldovan Leu   |MDL  |
+|Moroccan Dirham    |MAD  |
+|New Israeli Shekel |ILS  |
+|New Zealand Dollar |NZD  |
+|Nigerian Naira |NGN  |
+|Norwegian Krone    |NOK  |
+|Omani Rial |OMR  |
+|Pakistan Rupee |PKR  |
+|Panamanian Balboa  |PAB  |
+|Paraguayan Guarani |PYG  |
+|Peruvian Sol   |PEN  |
+|Philippine Peso    |PHP  |
+|Polish Zloty   |PLN  |
+|Pound Sterling |GBP  |
+|Qatari Rial    |QAR  |
+|Romanian New Leu   |RON  |
+|Russian Ruble  |RUB  |
+|Saudi Arabian Riyal    |SAR  |
+|Serbian Dinar  |RSD  |
+|Singapore Dollar   |SGD  |
+|South African Rand |ZAR  |
+|Sri Lanka Rupee    |LKR  |
+|Swedish Krona  |SEK  |
+|Swiss Franc    |CHF  |
+|Syrian Pound   |SYP  |
+|Taiwan New Dollar  |TWD  |
+|Thai Baht  |THB  |
+|Trinidad and Tobago Dollar |TTD  |
+|Tunisian Dinar |TND  |
+|Turkish Lira   |TRY  |
+|Ukranian Hryunia   |UAH  |
+|UAE Dirham |AED  |
+|Uruguay Peso   |UYU  |
+|US Dollar  |USD  |
+|Venezuelan Bolivar |VEF  |
+|Viet Nam Dong  |VND  |
+
+<a name="provincecodes" title="Province Codes"></a>
+## Province Codes
+
+|Province               |Code   |
+|---                    |---    |
+|Alberta                |AB     |
+|British Columbia       |BC     |
+|Manitoba               |MB     |
+|New Brunswick          |NB     |
+|Newfoundland           |NL     |
+|Nova Scotia            |NS     |
+|Northwest Territories  |NT     |
+|Nunavut                |NU     |
+|Ontario                |ON     |
+|Prince Edward Island   |PE     |
+|Quebec                 |QC     |
+|Saskatchewan           |SK     |
+|Yukon                  |YT     |
+
+<a name="statecodes" title="State Codes"></a>
+## State Codes
+
+|State                  |Code   |
+|---                    |---    |
+|Alabama                |AL     |
+|Alaska                 |AK     |
+|American Samoa         |AS     |
+|Arizona                |AZ     |
+|Arkansas               |AR     |
+|Armed Forces Americas  |AA     |
+|Armed Forces Europe    |AE     |
+|Armed Forces Pacific   |AP     |
+|California             |CA     |
+|Colorado               |CO     |
+|Connecticut            |CT     |
+|Delaware               |DE     |
+|District of Columbia   |DC     |
+|Florida                |FL     |
+|Georgia                |GA     |
+|Guam                   |GU     |
+|Hawaii                 |HI     |
+|Idaho                  |ID     |
+|Illinois               |IL     |
+|Indiana                |IN     |
+|International          |IT     |
+|Iowa                   |IA     |
+|Kansas                 |KS     |
+|Kentucky               |KY     |
+|Louisiana              |LA     |
+|Maine                  |ME     |
+|Maryland               |MD     |
+|Massachusetts          |MA     |
+|Michigan               |MI     |
+|Minnesota              |MN     |
+|Mississippi            |MS     |
+|Missouri               |MO     |
+|Montana                |MT     |
+|Nebraska               |NE     |
+|Nevada                 |NV     |
+|New Hampshire          |NH     |
+|New Jersey             |NJ     |
+|New Mexico             |NM     |
+|New York               |NY     |
+|North Carolina         |NC     |
+|North Dakota           |ND     |
+|Northern Mariana Is.   |MP     |
+|Ohio                   |OH     |
+|Oklahoma               |OK     |
+|Oregon                 |OR     |
+|Palau                  |PW     |
+|Pennsylvania           |PA     |
+|Puerto Rico            |PR     |
+|Rhode Island           |RI     |
+|South Carolina         |SC     |
+|South Dakota           |SD     |
+|Tennessee              |TN     |
+|Texas                  |TX     |
+|U.S. Virgin Islands    |VI     |
+|United States Federal  |US     |
+|Utah                   |UT     |
+|Vermont                |VT     |
+|Virginia               |VA     |
+|Washington             |WA     |
+|West Virginia          |WV     |
+|Wisconsin              |WI     |
+|Wyoming                |WY     |
+
+<a name="countrycodes" title="Country Codes"></a>
+## Country Codes
+| **Country**                       | **Code** |
+|---                                |---       |
+| Afghanistan                       | AF |
+| Åland Islands                     | AX |
+| Albania                           | AL |
+| Algeria                           | DZ |
+| American Samoa                    | AS |
+| Andorra                           | AD |
+| Angola                            | AO |
+| Anguilla                          | AI |
+| Antarctica                        | AQ |
+| Antigua and Barbuda               | AG |
+| Argentina                         | AR |
+| Armenia                           | AM |
+| Aruba                             | AW |
+| Australia                         | AU |
+| Austria                           | AT |
+| Azerbaijan                        | AZ |
+| Bahamas                           | BS |
+| Bahrain                           | BH |
+| Bangladesh                        | BD |
+| Barbados                          | BB |
+| Belarus                           | BY |
+| Belgium                           | BE |
+| Belize                            | BZ |
+| Benin                             | BJ |
+| Bermuda                           | BM |
+| Bhutan                            | BT |
+| Bolivia                           | BO |
+| Bonaire, Sint Eustatius and Saba  | BQ |
+| Bosnia and Herzegovina            | BA |
+| Botswana                          | BW |
+| Bouvet Island                     | BV |
+| Brazil                            | BR |
+| British Indian Ocean Territory    | IO |
+| Brunei Darussalam                 | BN |
+| Bulgaria                          | BG |
+| Burkina Faso                      | BF |
+| Burundi                           | BI |
+| Cambodia                          | KH |
+| Cameroon                          | CM |
+| Canada                            | CA |
+| Cape Verde                        | CV |
+| Cayman Islands                    | KY |
+| Central African Republic          | CF |
+| Chad                              | TD |
+| Chile                             | CL |
+| China                             | CN |
+| Christmas Island                  | CX |
+| Cocos (Keeling) Islands           | CC |
+| Colombia                          | CO |
+| Comoros                           | KM |
+| Congo                             | CG |
+| Congo, Democratic Republic of     | CD |
+| Cook Islands                      | CK |
+| Costa Rica                        | CR |
+| Côte D’Ivoire                     | CI |
+| Croatia                           | HR |
+| Cuba                              | CU |
+| Curaçao                           | CW |
+| Cyprus                            | CY |
+| Czech Republic                    | CZ |
+| Denmark                           | DK |
+| Djibouti                          | DJ |
+| Dominica                          | DM |
+| Dominican Republic                | DO |
+| Ecuador                           | EC |
+| Egypt                             | EG |
+| El Salvador                       | SV |
+| Equatorial Guinea                 | GQ |
+| Eritrea                           | ER |
+| Estonia                           | EE |
+| Ethiopia                          | ET |
+| Falkland Islands                  | FK |
+| Faroe Islands                     | FO |
+| Fiji                              | FJ |
+| Finland                           | FI |
+| France                            | FR |
+| French Guiana                     | GF |
+| French Polynesia                  | PF |
+| French Southern Territories       | TF |
+| Gabon                             | GA |
+| Gambia                            | GM |
+| Georgia                           | GE |
+| Germany                           | DE |
+| Ghana                             | GH |
+| Gibraltar                         | GI |
+| Greece                            | GR |
+| Greenland                         | GL |
+| Grenada                           | GD |
+| Guadeloupe                        | GP |
+| Guam                              | GU |
+| Guatemala                         | GT |
+| Guernsey                          | GG |
+| Guinea                            | GN |
+| Guinea-Bissau                     | GW |
+| Guyana                            | GY |
+| Haiti                             | HT |
+| Heard and McDonald Islands        | HM |
+| Honduras                          | HN |
+| Hong Kong                         | HK |
+| Hungary                           | HU |
+| Iceland                           | IS |
+| India                             | IN |
+| Indonesia                         | ID |
+| Iran  (Islamic Republic of)       | IR |
+| Iraq                              | IQ |
+| Ireland                           | IE |
+| Isle of Man                       | IM |
+| Israel                            | IL |
+| Italy                             | IT |
+| Jamaica                           | JM |
+| Japan                             | JP |
+| Jersey                            | JE |
+| Jordan                            | JO |
+| Kazakhstan                        | KZ |
+| Kenya                             | KE |
+| Kiribati                          | KI |
+| Korea, Democratic People’s Republic | KP |
+| Korea, Republic of                | KR |
+| Kuwait                            | KW |
+| Kyrgyzstan                        | KG |
+| Lao People’s Democratic Republic  | LA |
+| Latvia                            | LV |
+| Lebanon                           | LB |
+| Lesotho                           | LS |
+| Liberia                           | LR |
+| Libyan Arab Jamahiriya            | LY |
+| Liechtenstein                     | LI |
+| Lithuania                         | LT |
+| Luxembourg                        | LU |
+| Macau                             | MO |
+| Macedonia                         | MK |
+| Madagascar                        | MG |
+| Malawi                            | MW |
+| Malaysia                          | MY |
+| Maldives                          | MV |
+| Mali                              | ML |
+| Malta                             | MT |
+| Marshall Islands                  | MH |
+| Martinique                        | MQ |
+| Mauritania                        | MR |
+| Mauritius                         | MU |
+| Mayotte                           | YT |
+| Mexico                            | MX |
+| Micronesia, Federated States of   | FM |
+| Moldova, Republic of              | MD |
+| Monaco                            | MC |
+| Mongolia                          | MN |
+| Montenegro                        | ME |
+| Montserrat                        | MS |
+| Morocco                           | MA |
+| Mozambique                        | MZ |
+| Myanmar                           | MM |
+| Namibia                           | NA |
+| Nauru                             | NR |
+| Nepal                             | NP |
+| New Caledonia                     | NC |
+| New Zealand                       | NZ |
+| Nicaragua                         | NI |
+| Niger                             | NE |
+| Nigeria                           | NG |
+| Niue                              | NU |
+| Norfolk Island                    | NF |
+| Northern Mariana Islands          | MP |
+| Norway                            | NO |
+| Oman                              | OM |
+| Pakistan                          | PK |
+| Palau                             | PW |
+| Palestinian Territory, Occupied   | PS |
+| Panama                            | PA |
+| Papua New Guinea                  | PG |
+| Paraguay                          | PY |
+| Peru                              | PE |
+| Philippines                       | PH |
+| Pitcairn                          | PN |
+| Poland                            | PL |
+| Portugal                          | PT |
+| Puerto Rico                       | PR |
+| Qatar                             | QA |
+| Reunion                           | RE |
+| Romania                           | RO |
+| Russian Federation                | RU |
+| Rwanda                            | RW |
+| Saint Barthélemy                  | BL |
+| Saint Helena                      | SH |
+| Saint Kitts and Nevis             | KN |
+| Saint Lucia                       | LC |
+| Saint Martin                      | MF |
+| Saint Vincent and the Grenadines  | VC |
+| Samoa                             | WS |
+| San Marino                        | SM |
+| Sao Tome and Principe             | ST |
+| Saudi Arabia                      | SA |
+| Senegal                           | SN |
+| Serbia                            | RS |
+| Seychelles                        | SC |
+| Sierra Leone                      | SL |
+| Singapore                         | SG |
+| Sint Maarten                      | SX |
+| Slovakia (Slovak Republic)        | SK |
+| Slovenia                          | SI |
+| Solomon Islands                   | SB |
+| Somalia                           | SO |
+| South Africa                      | ZA |
+| South Georgia and the South Sandwich Islands | GS |
+| South Sudan                       | SS |
+| Spain                             | ES |
+| Sri Lanka                         | LK |
+| St. Pierre and Miquelon           | PM |
+| Sudan                             | SD |
+| Suriname                          | SR |
+| Svalbard and Jan Mayen Islands    | SJ |
+| Swaziland                         | SZ |
+| Sweden                            | SE |
+| Switzerland                       | CH |
+| Syrian Arab Republic              | SY |
+| Taiwan                            | TW |
+| Tajikistan                        | TJ |
+| Tanzania, United Republic of      | TZ |
+| Thailand                          | TH |
+| The Netherlands                   | NL |
+| Timor-Leste                       | TL |
+| Togo                              | TG |
+| Tokelau                           | TK |
+| Tonga                             | TO |
+| Trinidad and Tobago               | TT |
+| Tunisia                           | TN |
+| Turkey                            | TR |
+| Turkmenistan                      | TM |
+| Turks and Caicos Islands          | TC |
+| Tuvalu                            | TV |
+| Uganda                            | UG |
+| Ukraine                           | UA |
+| United Arab Emirates              | AE |
+| United Kingdom                    | GB |
+| United States                     | US |
+| United States Minor Outlying Islands | UM |
+| Uruguay                           | UY |
+| Uzbekistan                        | UZ |
+| Vanuatu                           | VU |
+| Vatican City State (Holy See)     | VA |
+| Venezuela                         | VE |
+| Vietnam                           | VN |
+| Virgin Islands (British)          | VG |
+| Virgin Islands (U.S.)             | VI |
+| Wallis and Futuna Islands         | WF |
+| Western Sahara                    | EH |
+| Yemen                             | YE |
+| Zambia                            | ZM |
+| Zimbabwe                          | ZW |
+
+<a name="languagecodes" title="Language Codes"></a>
+## Language Codes
+
+| Locale                    | Code  |
+|---------------------------|-------|
+| Danish                    | da_DK |
+| German                    | de_DE |
+| Greek                     | el_GR |
+| English (US)              | en_US |
+| English (United Kingdom)  | en_GB |
+| Spanish                   | es_ES |
+| French (Canada)           | fr_CA |
+| Italian                   | it_IT |
+| Japanese                  | ja_JP |
+| Korean                    | ko_KR |
+| Norwegian                 | no_NO |
+| Polish                    | pl_PL |
+| Portuguese                | pt_PT |
+| Russian                   | ru_RU |
+| Swedish                   | sv_SE |
+| Turkish                   | tr_TR |
+| Simplified Chinese        | zh_CN |
+
+# Common and Complex JSON Objects
+
+<a name="authenticationobject" title="Authentication Object"></a>
+## authentication
+
+| Element                               | Type                                      | Description                                                                                                                                                                    |
+|---------------------------------------|--------                                   |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| id                                    | string<br/>`length<=36`                   | This is the ID returned in the response.                                                                                                                                       |
+| deviceFingerprintingId                | string                                    | This is the UUID used with device fingerprinting.                                                                                                                              |
+| merchantRefNum                        | string<br/>`length<=255`                  | This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.                                        |
+| amount                                | number<br/>`max=99999999999`              | This is the amount of the request, in minor units.                                                                                                                             |
+| currency                              | string<br/>`length=3`                     | This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#CurrencyCodes).                                                                          |
+| card                                  | [object](#cardobject)                     | These are the details of the card used for the request.                                                                                                    |
+| merchantUrl                           | string<br/>`length<=2048`                 | This is the fully qualified URL of the merchant's commercial or customer care website.                                                                                         |
+| txnTime                               | UTC formatted date                        | This is the date and time the request was processed.                                                                                                                           |
+| error                                 | [object](#errorobject)                    | These are error details in case errors occurred or in the case where decision is FAIL/ERROR.                                                                                                                                                                               |
+| status                                | enum                                      | This is the status of the authentication request. Possible values are:<br/><ul><li>COMPLETED – The transaction has been completed.</li><li>PENDING – The transaction has not been completed yet.</li><li>FAILED – The authentication request failed. Check the error code for details.</li></ul>|
+| acsURL                                | string<br/>`length<=28`                   | This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.<br/>**Note:** This only exists if a challenge is required.|
+| payload                               | string<br/>`length<=2048`                 | This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS).<br/>**Note:** This only exists if a challenge is required.|
+| threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This only exists for 3DS 1.0.|
+| threeDResult                          | enum                                      | This indicates the outcome of the authentication. Possible values are:<br/><ul><li>Y – The cardholder successfully authenticated with their card issuer.</li><li>A – The cardholder authentication was attempted.</li><li>N – The cardholder failed to successfully authenticate with their card issuer.</li><li>U – Authentication with the card issuer was unavailable.</li><li>C – Challenge Required; additional authentication is required.</li><li>R – Rejected transaction.</li></ul><br/>**Note:** The _C_ and _R_ values only exist for 3DS 2.0.|
+| threeDSecureVersion                   | string<br/>`min=5, max=8`                 | This is the 3D secure protocol version.                                                                                                                                        |
+| directoryServerTransactionId          | string<br/>`length<=36`                   | This is the directory server transaction ID required for Mastercard.<br/>**Note:** This only exists for 3DS 2.0.                                                                   |
+| eci                                   | number<br/>`length<=2`                    | This is the Electronic Commerce Indicator code, which gets returned by the card issuer indicating whether the cardholder was successfully authenticated. Note that in some cases the *eci* value includes a leading zero, e.g., 01 or 02.<br/>**Visa, Amex, JCB, and Diners Club**<ul><li>5 &ndash; Identifies a successfully authenticated transaction.</li><li>6 &ndash; Identifies an attempted authenticated transaction.</li><li>7 &ndash; Identifies a non-authenticated transaction.</li></ul><br/>**Mastercard**<ul><li>0 &ndash; Identifies a non-authenticated transaction.</li><li>1 &ndash; Identifies an attempted authenticated transaction.</li><li>2 &ndash; Identifies a successfully authenticated transaction.</li></ul> <br/>**Note:** This only exists when no challenge is required, i.e., a frictionless authentication. |
+| cavv                                  | string<br/>`length<=28`                   | This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.<br/>**Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.|
+| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.|
+| sdkChallengePayload                   | string<br/>`length<=9999`                 | This is a payload that, if returned, should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required.|
+| transactionIntent                     | enum                                      | This identifies the type of transaction being authenticated. Possible values are:<br/><ul><li>GOODS_OR_SERVICE_PURCHASE</li><li>CHECK_ACCEPTANCE</li><li>ACCOUNT_FUNDING</li><li>QUASI_CASH_TRANSACTION</li><li>PREPAID_ACTIVATION</li></ul><br/>**Note:** This element is only required in certain markets, e.g., Brazil.                                                                                                                   |
+| maxAuthorizationsForInstalmentPayment | number<br/>`max=999`                      | This is the maximum number of authorizations permitted for installment payments.<br/>**Note:** This is required if _authenticationPurpose_=INSTALMENT_TRANSACTION.|
+| authenticationPurpose                 | enum                                      | This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. Possible values are:<br/><ul><li>PAYMENT_TRANSACTION</li><li>RECURRING_TRANSACTION</li><li>INSTALMENT_TRANSACTION</li><li>ADD_CARD</li><li>MAINTAIN_CARD</li><li>EMV_TOKEN_VERIFICATION</li></ul>|
+| deviceChannel                         | enum                                      | This is the type of channel interface used to initiate the transaction. Possible values are:<br/><ul><li>BROWSER</li><li>APP</li><li>3RI</li></ul>|
+| messageCategory                       | enum                                      | This is the category of the message for a specific use case. Possible values are:<br/><ul><li>PAYMENT</li><li>NON_PAYMENT</li></ul>|
+| initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase in UTC format.<br/>**Note:** This element is only required if _messageCategory_=PAYMENT, or, if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
+| requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>NO_CHALLENGE_REQUESTED</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
+| electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information.                                                                                                                                                                               |
+| orderItemDetails                      | [object](#orderitemdetailsobject)         | These are the details of a previously made purchase or preorder.                                                                                                                                                                               |
+| purchasedGiftCardDetails              | [object](#purchasedgiftcarddetailsobject) | These are the details of a previously made gift card purchase.                                                                                                                                                                               |
+| billingCycle                          | [object](#billingcycleobject)             | This is the billing cycle information for recurring payments.<br/>**Note:** This object is required if _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
+| browserDetails                        | [object](#browserdetailsobject)           | These are the browser details.<br/>**Note:** This object is not required if the Paysafe SDK is used for device fingerprinting.|
+| userAccountDetails                    | [object](#useraccountdetailsobject)       | These are the user account details from the merchant website.<br/>**Note:** This element is only required if _isAirTravel_=true.|
+| billingDetails                        | [object](#billingdetailsobject)           | These are the billing details for the request.<br/>**Note:** This object is only required for the request when a payment token is _not_ provided.|
+| shippingDetails                       | [object](#shippingdetailsobject)          | This is the shipping address of the customer.                                                                                                                                                                               |
+| profile                               | [object](#profileobject)                  | This is the customer profile.                                                                                                                                                                               |
+
+```apib
+{
+  "amount": 123,
+  "currency": "EUR",
+  "merchantRefNum": "Ref-1234",
+  "merchantUrl": "https://mysite.com",
+  "card": {
+    "cardExpiry": {
+      "month": 12,
+      "year": 2019
+    },
+    "cardNum": "4111111111111111",
+    "paymentToken": "SCrkVsiwgvcykjLA",
+    "holderName": "John Smith"
+  },
+  "billingDetails": {
+    "city": "New York",
+    "country": "US",
+    "state": "AL",
+    "street": "My street 1",
+    "street2": "My street 2",
+    "zip": "CHY987"
+  },
+  "shippingDetails": {
+    "city": "New York",
+    "country": "US",
+    "state": "AL",
+    "street": "My street 1",
+    "street2": "My street 2",
+    "zip": "CHY987"
+    "shipMethod": "S"
+  },
+  "profile": {
+    "cellPhone": "+154657854697",
+    "email": "example@example.com",
+    "phone": "+154657854697"
+  },
+  "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+  "deviceChannel": "BROWSER",
+  "requestorChallengePreference": "NO_PREFERENCE",
+  "messageCategory": "PAYMENT",
+  "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+  "authenticationPurpose": "PAYMENT_TRANSACTION",
+  "maxAuthorizationsForInstalmentPayment": 2,
+  "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+  "billingcycle": {
+    "endDate": "2014-01-26",
+    "frequency": 1
+  },
+  "orderItemDetails": {
+    "preOrderItemAvailabilityDate": "2014-01-26",
+    "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+    "reorderItemsIndicator": "FIRST_TIME_ORDER",
+    "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+  },
+  "purchasedGiftCardDetails": {
+    "amount": 1234,
+    "count": 2,
+    "currency": "USD"
+  },
+  "userAccountDetails": {
+    "addCardAttemptsForLastDay": 1,
+    "changedDate": "2014-01-26",
+    "changedRange": "DURING_TRANSACTION",
+    "createdDate": "2014-01-26",
+    "createdRange": "NO_ACCOUNT",
+    "passwordChangedDate": "2014-01-26",
+    "passwordChangedRange": "NO_CHANGE",
+    "paymentAccountDetails": {
+      "createdRange": "NO_ACCOUNT",
+      "createdDate": "2014-01-26"
+    },
+    "priorThreeDSAuthentication": {
+      "data": "Some up to 2048 bytes undefined data",
+      "method": "FRICTIONLESS_AUTHENTICATION",
+      "id": "123e4567-e89b-12d3-a456-426655440000",
+      "time": "2014-01-26T10:32:28Z"
+    },
+    "shippingDetailsUsage": {
+      "cardHolderNameMatch": true,
+      "initialUsageDate": "2014-01-26",
+      "initialUsageRange": "CURRENT_TRANSACTION"
+    },
+    "suspiciousAccountActivity": true,
+    "totalPurchasesSixMonthCount": 1,
+    "transactionCountForPreviousDay": 1,
+    "transactionCountForPreviousYear": 3,
+    "travelDetails": {
+      "isAirTravel": true,
+      "airlineCarrier": "Wizz air",
+      "departureDate": "2014-01-26",
+      "destination": "Bulgaria",
+      "origin": "China",
+      "passengerFirstName": "John",
+      "passengerLastName": "Smith"
+    },
+    "userLogin": {
+      "authenticationMethod": "NO_LOGIN",
+      "data": "Some up to 2048 bytes undefined data",
+      "time": "2014-01-26T10:32:28Z"
+    }
+  },
+  "browserDetails": {
+    "acceptHeader": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "colorDepthBits": "24",
+    "customerIp": "207.48.141.20",
+    "javascriptEnabled": true,
+    "javaEnabled": true,
+    "language": "en-US",
+    "screenHeight": 768,
+    "screenWidth": 1024,
+    "timezoneOffset": 240,
+    "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+  }
+}
+```
+
+<a name="billingcycleobject" title="Billing Cycle Object"></a>
+## billingCycle
+
+|Element                |Type                           |Description|
+|---                    |---                            |---       |
+|endDate                |UTC formatted date             |This is the date after which no further authorizations will be performed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|frequency              |number<br/>`max=9999`          |This is the minimum number of days between authorizations. |
+
+```apib
+{
+    "endDate": "2019-01-26",
+    "frequency": 1,
+}
+```
+
+<a name="billingdetailsobject" title="Billing Details Object"></a>
+## billingDetails
+
+|Element            |Type                             |Description                        |
+|---                |---                              |---                                |
+|street             |string<br/>`length<=50`          |This is the first line of the street address in the billing address.|
+|street2            |string<br/>`length<=50`          |This is the second line of the street address in the billing address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`          |This is the city in the billing address.|
+|state              |string<br/>`length<=40`          |See [Province Codes](#provincecodes) or [State Codes](#statecodes) for Canada or the United States.|
+|country            |enum  <br/>`length=2`            |See [Country Codes](#countrycodes).|
+|zip                |string<br/>`length<=10`          |This is the postal/zip code in the billing address.|
+
+```apib
+  {
+  "billingDetails":{
+    "street":"100 Queen Street West",
+    "city":"Toronto",
+    "state":"ON",
+    "country":"CA",
+    "zip":"M5H 2N2"
+  }
+  }
+```
+
+<a name="browserdetailsobject" title="Browser Details Object"></a>
+## browserDetails
+
+|Element                |Type                           |Description|
+|---                    |---                            |---       |
+|acceptHeader           |string<br/>`length<=2048`      |This is the exact content of the HTTP accept header as sent to the 3DS Requestor from the cardholder’s browser.|
+|colorDepthBits         |enum                           |This is the bit depth of the colour palette for displaying images, in bits per pixel. Possible values are:<br/><ul><li>1</li><li>4</li><li>8</li><li>15</li><li>16</li><li>24</li><li>32</li><li>48</li></ul>|
+|customerIp             |string<br/>`Valid IPv4/IPv6`   |This is the customer's IP address.|
+|javaEnabled            |boolean                        |This indicates whether the cardholder's browser is able to execute Java.|
+|javascriptEnabled      |boolean                        |This indicates whether the cardholder's browser is able to execute JavaScript.|
+|language               |string<br/>`length<=8`         |This is the language in the browser.|
+|screenHeight           |number<br/>`max=999999`        |This is the total height of the cardholder’s screen in pixels.|
+|screenWidth            |number<br/>`max=999999`        |This is the total width of the cardholder’s screen in pixels. |
+|timezoneOffset         |number<br/>`max=99999`         |This is the time-zone offset in minutes between UTC and the local time of the cardholder's browser.|
+|userAgent              |string<br/>`length<=256`       |This is the User-Agent header from the customer's browser. For example:<br/>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36|
+
+```apib
+{
+    "acceptHeader": "*/*",
+    "colorDepthBits": "24",
+    "customerIp": "207.48.141.20",
+    "javascriptEnabled": true,
+    "javaEnabled": true,
+    "language": "en-US",
+    "screenHeight": 768,
+    "screenWidth": 1024,
+    "timezoneOffset": 240,
+    "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+}
+```
+<a name="cardobject" title="Card Object"></a>
+## card
+
+When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
+
+|Element            |Type                       |Description                        |
+|---                |---                        |---                                |
+|paymentToken       |string<br/>`length<=80`    |If the payment token is provided, no other card information is necessary. |
+
+**OR**
+
+|Element            |Type                               |Description  |
+|---                |---                                |---          |
+|holderName         |string<br/>`length<=160`           |This is the name of the card holder. |
+|cardNum            |string<br/>`length=8-20`           |This is the card number used for the request. |
+|cardBin            |string<br/>`length<=6`             |This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card. |
+|cardExpiry         |[object](#cardexpiryobject)        |This is the card's expiry date.|
+|type               |enum                               |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>MC &ndash; Mastercard</li><li>VI &ndash; Visa</li></ul>
+|lastDigits         |string<br/>`length=4`              |This is the last four digits of the card used for the request.|
+
+
+```apib
+    {
+    "card": {
+        "cardNum": "4111111111111111",
+        "cardExpiry": {
+            "month": 2,
+            "year": 2019
+        }
+    }
+    }
+```
+
+<a name="cardexpiryobject" title="Card Expiry Object"></a>
+## cardExpiry
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|month                   |number<br/>`length=2`  |This is the card expiry month. |
+|year                    |number<br/>`length=4`  |This is the card expiry year.|
+
+```apib
+    {
+    "cardExpiry":{
+        "month": "12",
+        "year": "2020"
+    }
+    }
+```
+
+<a name="dateofbirthobject" title="Date of Birth Object"></a>
+## dateOfBirth
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|day                     |number<br/>`length=2`  |This is the day of the customer's date of birth. |
+|month                   |number<br/>`length=2`  |This is the month of the customer's date of birth. |
+|year                    |number<br/>`length=4`  |This is the year of the customer's date of birth.|
+
+```apib
+    {
+    "dateOfBirth":{
+        "day":"29",
+        "month": "12",
+        "year": "1989"
+    }
+    }
+```
+
+<a name="electronicdeliveryobject" title="Electronic Delivery Object"></a>
+## electronicDelivery
+
+|Element                |Type                           |Description|
+|---                    |---                            |---        |
+|isElectronicDelivery   |boolean                        |This indicates whether there is an electronic delivery for the product.|
+|email                  |string<br/>`length<=240`       |This is the the email address to which the merchandise was delivered. |
+
+```apib
+{
+    "isElectronicDelivery": "true"
+    "email": "example@example.com",
+}
+```
+
+<a name="errorobject" title="error Object"></a>
+## error
+|Element            |Type       |Description |
+|---                |---        |---         |
+|code               |string     |This is the error code. Also shown in the X-Application-Status-Code response header.|
+|message            |string     |This is a description of the error.|
+
+```apib
+   {
+   "error":{  
+      "code":"5270",
+      "message":"The credentials provided with the request do not have permission to access the data requested."
+   }
+   }
+```
+
+<a name="expirydateobject" title="Expiry Date Object"></a>
+## expiryDate
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|day                     |number<br/>`length=2`  |This is the day when the document will expire. |
+|month                   |number<br/>`length=2`  |This is the month when the document will expire. |
+|year                    |number<br/>`length=4`  |This is the year when the document will expire.|
+
+```apib
+    {
+    "expiryDate":{
+        "day":"29",
+        "month": "12",
+        "year": "1989"
+    }
+    }
+```
+
+<a name="identitydocumentsobject" title="Identity Documents Object"></a>
+## identityDocuments
+
+| Element                  | Type                       | Description                                                                                                          |
+|--------------------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|
+| type                     | enum                       | This is the type of identification document. Possible values vary for individuals and companies.</br><p>For individuals:</p></br><ul><li>PASSPORT</li><li>IDENTITY_CARD</li><li>DRIVING_LICENSE</li><li>SOCIAL_SECURITY</li><li>NATIONAL_IDENTITY</li><li>TAX_IDENTIFICATION</li></ul></br><p>For companies:</p></br><ul><li>REGISTRATION_ID</li><li>ACRA</li><li>LICENSE_NUMBER</li><li>REGISTRATION_NUMBER</li></ul>|
+| documentNumber           | string<br/>`length<=50`    | This is the unique document identification number.                                                                   |
+| issuingCountry           | string<br/>`length=2`      | This is the country that issued the government ID. In the USA, this would be US.                                     |
+| issuingCountrySubdvision | string<br/>`length=2`      | This is the country subdivision that issued the government ID. In the USA, this would be the appropriate state code. |
+| issueDate                | [object](#issuedateobject) | This is the issue date of the document.                                                                              |
+| expiryDate               | [object](#expirydateobject)| This is the expiration date of the document.                                                                         |
+
+```apib
+{
+    "identityDocuments": [{
+        "type": "DRIVING_LICENSE",
+        "documentNumber": "1234567890",
+        "issuingCountry": "CA",
+        "issueDate": {
+            "year": 2017,
+            "month": 12,
+            "day": 25
+        }
+        "expiryDate": {
+            "year": 2027,
+            "month": 12,
+            "day": 25
+        }
+        }]
+}
+```
+
+<a name="issuedateobject" title="Issue Date Object"></a>
+## issueDate
+
+|Element                 |Type                   |Description|
+|---                     |---                    |---|
+|day                     |number<br/>`length=2`  |This is the day when the document was issued. |
+|month                   |number<br/>`length=2`  |This is the month when the document was issued. |
+|year                    |number<br/>`length=4`  |This is the year when the document was issued.|
+
+```apib
+    {
+    "issueDate":{
+        "day":"29",
+        "month": "12",
+        "year": "1989"
+    }
+    }
+```
+
+<a name="orderitemdetailsobject" title="Order Item Details Object"></a>
+## orderItemDetails
+
+| Element                         | Type               | Description                                                                                                                                                        |
+|---------------------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| preOrderItemAvailabilityDate    | UTC formatted date | For a pre-ordered purchase, this is the date that the merchandise is expected to be available. The ISO 8601 date format is expected i.e., YYYY-MM-DD.|
+| preOrderPurchaseIndicator       | enum               | This indicates whether the cardholder is placing an order for available merchandise or merchandise with a future availability or release date. Possible values are:<br/><ul><li>MERCHANDISE_AVAILABLE</li><li>FUTURE_AVAILABILITY</li></ul>|
+| reorderItemsIndicator           | enum               | This indicates whether the cardholder is reordering merchandise. Possible values are:<br/><ul><li>FIRST_TIME_ORDER</li><li>REORDER</li></ul>|
+| shippingIndicator               | enum               | This is the shipping method for the transaction. Possible values are:<br/><ul><li>SHIP_TO_BILLING_ADDRESS</li><li>SHIP_TO_VERIFIED_ADDRESS</li><li>SHIP_TO_DIFFERENT_ADDRESS</li><li>SHIP_TO_STORE</li><li>DIGITAL_GOODS</li><li>TRAVEL_AND_EVENT_TICKETS</li><li>OTHER</li></ul>|
+
+```apib
+{
+    "preOrderItemAvailabilityDate": "2014-01-26",
+    "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+    "reorderItemsIndicator": "FIRST_TIME_ORDER",
+    "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+}
+```
+
+<a name="paymentaccountdetailsobject" title="Payment Account Details Object"></a>
+## paymentAccountDetails
+
+|Element        |Type                   |Description|
+|---            |---                    |---|
+|createdRange   |enum                   |This indicates the length of time that the payment account was enrolled in the cardholder’s account with the 3DS Requestor. Possible values are:<br/><ul><li>NO_ACCOUNT</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|createdDate    |UTC formatted date     |This is the date that the cardholder opened the account with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+
+```apib
+{
+    "createdRange": "NO_ACCOUNT",
+    "createdDate": "2014-01-26"
+}
+```
+
+<a name="priorthreedsauthenticationobject" title="Prior 3DS Authentication Object"></a>
+## priorThreeDSAuthentication
+
+|Element        |Type                       |Description|
+|---            |---                        |---|
+|data           |string<br/>`max=2048 bytes`|This field is reserved for future iterations of 3DS 2.0.|
+|method         |enum                       |This is the mechanism used previously by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>FRICTIONLESS_AUTHENTICATION</li><li>ACS_CHALLENGE</li><li>AVS_VERIFIED</li><li>OTHER_ISSUER_METHOD</li></ul>|
+|id             |string</br>`length<=36`    |This is the previous authentication ID for the cardholder.|
+|time           |UTC formatted date         |This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.|
+
+```apib
+{
+    "data": "Some up to 2048 bytes undefined data",
+    "method": "FRICTIONLESS_AUTHENTICATION",
+    "id": "123e4567-e89b-12d3-a456-426655440000",
+    "time": "2014-01-26T10:32:28Z"
+}
+```
+
+<a name="profileobject" title="Profile Object"></a>
+## profile
+
+| Element           | Type                                          | Description |
+|-------------------|-----------------------------------------------|-------------------------------------------------------------------------------------|
+| title             | string                                        | This is the title of the customer.|
+| firstName         | string</br>`length<=80`                       | This is the first name of the customer.|
+| lastName          | string</br>`length<=80`                       | This is the last name of the customer.|
+| email             | string</br>`length<=255`                      | This is the email address of the customer.|
+| dateOfBirth       | [object](#dateofbirthobject)                  | This is the customer's date of birth.|
+| gender            | enum                                          | This is the specified gender of the customer. Possible values are:<br/><ul><li>M – Male</li><li>F – Female</li><li>O – Other</li><li>N – Not Specified</li></ul>|
+| identityDocuments | [array of objects](#identitydocumentsobject)  | This is an array of consumer identity documents. |
+| kycStatus         | enum                                          | This is the KYC status of the consumer at the merchant. Possible values are:<br/><ul><li>UNVERIFIED – Consumer details are not verified.</li><li>PARTIALLY_VERIFIED – Some consumer details are verified, e.g., name and date of birth.</li><li>VERIFIED – Consumer is fully verified, i.e., name, date of birth, address, phone number, and email.</li></ul>|
+| phone             | string</br>`length<=40`                       | This is the customer's primary phone.|
+| cellphone         | string</br>`length<=40`                       | This is the customer's cell phone.|
+| locale            | string</br>`length=2`                         | This is the ISO language code representing the preferred language for this profile. |
+
+```apib
+{
+    "title": "Mr",
+    "firstName": "John",
+    "lastName": "Smith",
+    "email": "jsmith@email.com",
+    "dateOfBirth": {
+        "day": "31",
+        "month": "10",
+        "year": "1995"
+    },
+    "identityDocuments": [{
+        "type": "DRIVING_LICENSE",
+        "idNumber": "1234567890"
+    }],
+    "gender": "M",
+    "kycStatus": "VERIFIED",
+    "phone": "14032221234",
+    "cellphone": "14033332345",
+    "locale": "en"
+}
+```
+
+<a name="purchasedgiftcarddetailsobject" title="Purchased Gift Card Details Object"></a>
+## purchasedGiftCardDetails
+
+| Element  | Type                          | Description                                                     |
+|----------|-------------------------------|-----------------------------------------------------------------|
+| amount   | number<br/>`max=99999999999`  | This is the amount of the gift card, in minor units.  |
+| count    | number<br/>`max=99`           | This is the total count of individual prepaid or gift cards or codes purchased. |
+| currency | string<br/>`length=3`         | This is the currency of the gift card, e.g., USD or CAD. See [Currency Codes](#CurrencyCodes)|
+
+```apib
+{
+    "amount": 1234,
+    "count": 2,
+    "currency": "USD"
+}
+```
+
+<a name="shippingdetailsobject" title="Shipping Details Object"></a>
+## shippingDetails
+
+|Element            |Type                       |Description |
+|---                |---                        |---        |
+|carrier            |enum                       |This is the shipment carrier. Possible values are:<ul><li>APC &ndash; APC Overnight</li><li>APS &ndash; Anpost</li><li>CAD &ndash; Canada Postal Service</li><li>DHL &ndash; DHL</li><li>FEX &ndash; Fedex</li><li>RML &ndash; Royal Mail</li><li>UPS &ndash; United Parcel Service</li><li>USPS &ndash; United States Postal Service</li><li>CLK &ndash; CityLink</li><li>EMS &ndash; EMS (US Postal Service)</li><li>NEX &ndash; Nexworldwide</li><li>OTHER</li></ul>|
+|shipMethod         |enum                       |This is the method of shipment. Possible values are:<ul><li>N &ndash; Next Day/Overnight</li><li>T &ndash; Two-Day Service</li><li>C &ndash; Lowest Cost</li><li>O &ndash; Other</li></ul>|
+|recipientName      |string<br/>`length<=255`   |This is the name of the person receiving the goods.|
+|company            |string<br/>`length<=255`   |This is the company receiving the goods.|
+|street             |string<br/>`length<=50`    |This is the recipient's street address.|
+|street2            |string<br/>`length<=255`   |This is the second line of the street address in the shipping address, if required (e.g., apartment number).|
+|city               |string<br/>`length<=40`    |This is the city in which the recipient resides.|
+|state              |string<br/>`length<=40`    |See [Province Codes](#provincecodes) or [State Codes](#statecodes) for Canada or the United States.|
+|country            |enum                       |See [Country Codes](#countrycodes). |
+|zip                |string<br/>`length<=10`    |This is the recipient's postal/zip code. |
+
+```apib
+  {
+  "shippingDetails":{
+    "carrier":"UPS",
+    "shipMethod":"N",
+    "recipientName":"Jane Smith",
+    "street":"100 Queen Street West",
+    "city":"Toronto",
+    "state":"ON",
+    "country":"CA",
+    "zip":"M5H 2N2"
+  }
+  }
+```
+
+<a name="shippingdetailsusageobject" title="Shipping Details Usage Object"></a>
+## shippingDetailsUsage
+
+|Element                |Type                   |Description|
+|---                    |---                    |---|
+|cardHolderNameMatch    |boolean                |This indicates whether the cardholder name on the account is identical to the shipping name used for this transaction.|
+|initialUsageDate       |UTC formatted date     |This is the date when the shipping address for this transaction was first used with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|initialUsageRange      |enum                   |This is the length of time between the first use of this shipping address and the current transaction. Possible values are:<br/><ul><li>CURRENT_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+
+```apib
+{
+    "cardHolderNameMatch": true,
+    "initialUsageDate": "2014-01-26",
+    "initialUsageRange": "CURRENT_TRANSACTION"
+}
+```
+
+<a name="traveldetailsobject" title="Travel Details Object"></a>
+## travelDetails
+
+|Element                |Type                       |Description|
+|---                    |---                        |---|
+|isAirTravel            |boolean                    |This indicates whether the transaction is an air travel related purchase, e.g., a ticket purchase. Default is <i>false</i>.|
+|airlineCarrier         |string<br/>`length<=256`   |This is the selected airline carrier.|
+|departureDate          |UTC formatted date         |This is the date of departure in the time zone of the departure location. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|destination            |string<br/>`length<=5`     |This is the airport code of the destination airport.|
+|origin                 |string<br/>`length<=5`     |This is the airport code of the originating airport.|
+|passengerFirstName     |string<br/>`length<=99`    |This is the first name of the cardholder from the billing details.|
+|passengerLastName      |string<br/>`length<=99`    |This is the last name of the cardholder from the billing details.|
+
+```apib
+{
+    "isAirTravel": true,
+    "airlineCarrier": "Wizz air",
+    "departureDate": "2014-01-26",
+    "destination": "SOF",
+    "origin": "BCN",
+    "passengerFirstName": "John",
+    "passengerLastName": "Smith"
+}
+```
+
+<a name="useraccountdetailsobject" title="User Account Details Object"></a>
+## userAccountDetails
+
+|Element                         |Type                                              |Description|
+|---                             |---                                               |---       |
+|addCardAttemptsForLastDay       |number<br/>`max=999`                              |This is the number of Add Card attempts in the last 24 hours.|
+|changeDate                      |UTC formatted date                                |This is the date that the cardholder’s account with the 3DS Requestor was last changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|changeRange                     |enum                                              |This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction. Possible values are:<br/><ul><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|createdDate                     |UTC formatted date                                |This is the date when the cardholder opened the account with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|createdRange                    |enum                                              |This is the length of time between the cardholder opening the account with the 3DS Requestor and the API call of the current transaction. Possible values are:<br/><ul><li>NO_ACCOUNT</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|passwordChangeDate              |UTC formatted date                                |This is the date when the cardholder’s account was reset or the password was changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|passwordChangeRange             |enum                                              |This is the length of time between the most recent password change or cardholder account reset and the API call of the current transaction. Possible values are:<br/><ul><li>NO_CHANGE</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|paymentAccountDetails           |[object](#paymentaccountdetailsobject)            |These are the details of the current payment account of the cardholder.|
+|priorThreeDSAuthentication      |[object](#priorthreedsauthenticationobject)       |This is the previous authentication information used with current merchant, cardholder, and card.|
+|shippingDetailsUsage            |[object](#shippingdetailsusageobject)             |This is the shipping usage information.|
+|suspiciousAccountActivity       |boolean                                           |This indicates whether the 3DS Requestor has experienced suspicious activity, including previous fraud, on the cardholder account.|
+|totalPurchasesSixMonthCount     |number<br/>`max=9999`                             |This is the total number of purchases from this cardholder account in the previous six months.|
+|transactionCountForPreviousDay  |number<br/>`max=999`                              |This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous year.|
+|transactionCountForPreviousYear |number<br/>`max=999`                              |This is the User-Agent header from the customer's browser. For example:<br/>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36|
+|travelDetails                   |[object](#traveldetailsobject)                    |These are the Amex-specific travel details.|
+|userLogin                       |[object](#userloginobject)                        |This is the cardholder login information.|
+
+```apib
+{
+    "addCardAttemptsForLastDay": 1,
+    "changeDate": "2014-01-26",
+    "changeRange": "DURING_TRANSACTION",
+    "createdDate": "2014-01-26",
+    "createdRange": "NO_ACCOUNT",
+    "passwordChangeDate": "2014-01-26",
+    "passwordChangeRange": "NO_CHANGE",
+    "paymentAccountDetails": {
+      "createdRange": "NO_ACCOUNT",
+      "createdDate": "2014-01-26"
+    },
+    "priorThreeDSAuthentication": {
+      "data": "Some up to 2048 bytes undefined data",
+      "method": "FRICTIONLESS_AUTHENTICATION",
+      "id": "123e4567-e89b-12d3-a456-426655440000",
+      "time": "2014-01-26T10:32:28Z"
+    },
+    "shippingDetailsUsage": {
+      "cardHolderNameMatch": true,
+      "initialUsageDate": "2014-01-26",
+      "initialUsageRange": "CURRENT_TRANSACTION"
+    },
+    "suspiciousAccountActivity": true,
+    "totalPurchasesSixMonthCount": 1,
+    "transactionCountForPreviousDay": 1,
+    "transactionCountForPreviousYear": 3,
+    "travelDetails": {
+      "isAirTravel": true,
+      "airlineCarrier": "Wizz air",
+      "departureDate": "2014-01-26",
+      "destination": "Bulgaria",
+      "origin": "China",
+      "passengerFirstName": "John",
+      "passengerLastName": "Smith"
+    },
+    "userLogin": {
+      "authenticationMethod": "NO_LOGIN",
+      "data": "Some up to 2048 bytes undefined data",
+      "time": "2014-01-26T10:32:28Z"
+    }
+}
+```
+
+<a name="userloginobject" title="User Login Object"></a>
+## userLogin
+
+|Element                |Type                       |Description|
+|---                    |---                        |---|
+|authenticationMethod   |enum                       |This is the mechanism used by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>NO_LOGIN</li><li>INTERNAL_CREDENTIALS</li><li>FEDERATED_ID</li><li>ISSUER_CREDENTIALS</li><li>THIRD_PARY_AUTHENTICATION</li><li>FIDO_AUTHENTICATOR</li></ul>|
+|data                   |string<br/>`max=2048 bytes`|This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.|
+|time                   |UTC formatted date         |This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.|
+
+```apib
+{
+    "authenticationMethod": "NO_LOGIN",
+    "data": "Some up to 2048 bytes undefined data",
+    "time": "2014-01-26T10:32:28Z"
+}
+```
+
+# Error Summary
+
+<a name="commonerrors" title="Common Errors"></a>
+## Common Errors
+|HTTP Status Code       |Error Code     |Description|
+|---                    |---            |---|
+|500                    |1000           |An internal error occurred.         |
+|502                    |1001           |An error occurred with the external processing gateway.|
+|500                    |1002           |An internal error occurred.            |
+|500                    |1003           |An internal error occurred.            |
+|500                    |1007           |An internal error occurred.            |
+|500                    |1008           |An internal error occurred.            |
+|429                    |1200           |The API call has been denied as it has exceeded the permissible call rate limit.|
+|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
+|400                    |5001           |The submitted currency code is invalid or your account does not support this currency.|
+|400                    |5003           |You submitted an invalid amount with your request.|
+|400                    |5004           |You submitted an invalid account type with your request.|
+|400                    |5005           |You submitted an invalid operation type with your request.|
+|400                    |5010           |The submitted country code is invalid.|
+|400                    |5016           |The merchant account you provided cannot be found.|
+|400                    |5017           |The merchant account you provided is disabled.|
+|402                    |5021           |Your transaction request has been declined.|
+|400                    |5023           |The request is not parseable.|
+|409                    |5031           |The transaction you have submitted has already been processed.|
+|401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
+|400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
+|400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
+|404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
+|403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
+|406                    |5271           |You requested a response in the 'Accept' header that is in an unsupported format.|
+|406                    |5272           |The 'Content-Type' you specified in request header was submitted in an unsupported format.|
+|404                    |5273           |Your client reached our application but we were unable to service your request due to an invalid URL.|
+|401                    |5275           |The authentication credentials provided with the request have expired.|
+|401                    |5276           |The authentication credentials provided with the request provided have been disabled.|
+|401                    |5277           |The authentication credentials provided with the request have been locked due to multiple authentication failures.|
+|401                    |5278           |The authentication credentials provided with the request were not accepted for an unknown reason.|
+|401                    |5279           |The authentication credentials are invalid.|
+|401                    |5280           |The required authentication credentials were not provided.|
+|405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
+|400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+# Using the example API calls (Console Window)
+To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
+Using the Console window you can update the headers, the request body, and parts of the API endpoint. 
+For example, for many requests you must update the endpoint to include your account ID, which you do by selecting **URI Parameters** and then updating the **account_id** value. 
+(To get your account ID, log in to the Paysafe Back Office, choose **Accounts** and look in the *Account* column).
+You must also update the header to include your API Key by selecting **Headers** and then updating the **Authorization** value using the Base64
+version of your API key. To get your API key, log in to the test version of the Merchant Back Office and choose **Settings > API Key**. 
+Click **View Base 64 Encoded** and copy the key to your clipboard. Paste the key after the word Basic to replace the text YOUR-BASE64-ENCODED-API-KEY.
+When you are ready to test your example, you can choose between the Production and Mock server environment:
+* Production server - This calls the resource on Paysafe's Test system. 
+* Mock server - This environment simply returns the dummy values in the example response irrespective of the parameters you supply. You do not need to use your account ID or Test API key for this request.
+
+To call the API resource, click **Call Resource**. The response is displayed in the Console window.
+
+# Legal and Community
+<ul>
+<li><a href="https://www.paysafe.com/paysafegroup/privacy-policy/" target="_blank">Privacy Policy</a></li>
+<li><a href="https://developer.paysafe.com/en/resources-and-support/terms-of-use/" target="_blank">Terms of Use</a></li>
+<li><a href="https://www.paysafe.com/paysafegroup/regulatory-disclosures/" target="_blank">Regulatory Disclosures</a></li>
+<li><a href="http://community.paysafe.com/spaces/11/index.html" target="_blank">FAQs</a></li>
+<li><a href="http://community.paysafe.com/index.html" target="_blank">Community</a></li>
+</ul>
+
+## Verify That the Service Is Accessible [GET /monitor]
+<a name="verifyservice" title="Verify Service"></a>
+
+This call returns a status of READY if the API is available.
+
++ Response 200 (application/json)
+
+  + Body
+    
+            {
+                "status" : "READY"
+            }
+
+# Authentications [/authentications]
+<a name="authentications" title="Authentications"></a>
+
+## Authentications [POST /v2/accounts/{account_id}/authentications]
+<a name="authentication" title="Authentication"></a>
+
+Click on **Authentications** above to see an example of an Authentication request.
+
++ Parameters
+
+    + account_id:123456789 (string, required) - This is the merchant account number.
+
++ Request Authentication (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
+    + Attributes
+    
+        + Include Authentication Request
+        
+    + Body
+
+            {
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardNum": "4111111111111111",
+                "paymentToken": "SCrkVsiwgvcykjLA",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+              "deviceChannel": "BROWSER",
+              "requestorChallengePreference": "NO_PREFERENCE",
+              "messageCategory": "PAYMENT",
+              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+              "authenticationPurpose": "PAYMENT_TRANSACTION",
+              "maxAuthorizationsForInstalmentPayment": 2,
+              "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+              "billingcycle": {
+                "endDate": "2014-01-26",
+                "frequency": 1
+              },
+              "orderItemDetails": {
+                "preOrderItemAvailabilityDate": "2014-01-26",
+                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+              },
+              "purchasedGiftCardDetails": {
+                "amount": 1234,
+                "count": 2,
+                "currency": "USD"
+              },
+              "userAccountDetails": {
+                "addCardAttemptsForLastDay": 1,
+                "changedDate": "2014-01-26",
+                "changedRange": "DURING_TRANSACTION",
+                "createdDate": "2014-01-26",
+                "createdRange": "NO_ACCOUNT",
+                "passwordChangedDate": "2014-01-26",
+                "passwordChangedRange": "NO_CHANGE",
+                "paymentAccountDetails": {
+                  "createdRange": "NO_ACCOUNT",
+                  "createdDate": "2014-01-26"
+                },
+                "priorThreeDSAuthentication": {
+                  "data": "Some up to 2048 bytes undefined data",
+                  "method": "FRICTIONLESS_AUTHENTICATION",
+                  "id": "123e4567-e89b-12d3-a456-426655440000",
+                  "time": "2014-01-26T10:32:28Z"
+                },
+                "shippingDetailsUsage": {
+                  "cardHolderNameMatch": true,
+                  "initialUsageDate": "2014-01-26",
+                  "initialUsageRange": "CURRENT_TRANSACTION"
+                },
+                "suspiciousAccountActivity": true,
+                "totalPurchasesSixMonthCount": 1,
+                "transactionCountForPreviousDay": 1,
+                "transactionCountForPreviousYear": 3,
+                "travelDetails": {
+                  "isAirTravel": true,
+                  "airlineCarrier": "Wizz air",
+                  "departureDate": "2014-01-26",
+                  "destination": "Bulgaria",
+                  "origin": "China",
+                  "passengerFirstName": "John",
+                  "passengerLastName": "Smith"
+                },
+                "userLogin": {
+                  "authenticationMethod": "NO_LOGIN",
+                  "data": "Some up to 2048 bytes undefined data",
+                  "time": "2014-01-26T10:32:28Z"
+                }
+              },
+              "browserDetails": {
+                "acceptHeader": "*/*",
+                "colorDepthBits": "24",
+                "customerIp": "207.48.141.20",
+                "javascriptEnabled": true,
+                "javaEnabled": true,
+                "language": "en-US",
+                "screenHeight": 768,
+                "screenWidth": 1024,
+                "timezoneOffset": 240,
+                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+              }
+            }            
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "123e4567-e89b-12d3-a456-4266554456745",
+              "acsUrl": "https://www.acs.com",
+              "cavv": "BwAQATkhGAEAABVIFSEYEGkybeU=",
+              "xid": "MTU0ODE1MjExNDYzMXBVY1ZqU3k=",
+              "eci": 5,
+              "status": "COMPLETED",
+              "threeDEnrollment": "Y",
+              "threeDResult": "Y",
+              "txnTime": "2019-01-21T16:28:17.735Z",
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardBin": "411111",
+                "lastDigits": "1111",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
+              "threeDSecureVersion": "2.1.0",
+              "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI
+            4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk
+            5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHk
+            geW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI
+            6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3V
+            yIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmN
+            hcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1
+            lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmN
+            vbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmN
+            lLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2V
+            zL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmR
+            pbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODR
+            jMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF
+            0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8
+            /PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGV
+            jdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSB
+            sb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
+             
+             "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI
+            4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk
+            5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHk
+            geW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI
+            6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3V
+            yIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmN
+            hcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1
+            lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmN
+            vbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmN
+            lLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2V
+            zL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmR
+            pbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODR
+            jMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF
+            0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8
+            /PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGV
+            jdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSB
+            sb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+             }
+            
+## Get Authentication [GET /v2/accounts/{account_id}/authentications/{authentication_id}]
+<a name="getauthentication" title="Look Up an Authentication"></a>
+
+This is how you look up an Authentication. 
+
++ Parameters
+    + account_id:123456789 (string, required) - This is the merchant account number.
+    + authentication_id:`5d4db3bc-34c9-417f-a051-0d992ad9284e` (string, required) - This is the Authentication ID.
+
++ Request Get Authentication (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+                "links": [
+                    {
+                        "rel": "self",
+                        "href": "https://api.test.paysafe.com/threedsecure/v2/accounts/99000/authentications/5d4db3bc-34c9-417f-a051-0d992ad9284e"
+                    }
+                ],
+                "id": "5d4db3bc-34c9-417f-a051-0d992ad9284e",
+                "merchantRefNum": "merchantABC-123-authentications",
+                "txnTime": "2016-04-09T17:59:55Z",
+                "status": "COMPLETED",
+                "threeDResult": "Y",
+                "signatureStatus": "Y",
+                "eci": 5,
+                "cavv": "AAABBhkXYgAAAAACBxdiENhf7A+=",
+                "xid": "aWg4N1ZZOE53TkFrazJuMmkyRDA="
+            }
+
+# Data Structures
+
+## Authentication Request
+
++ `id`:`123e4567-e89b-12d3-a456-4266554456745` (string, required) - This is the ID returned in the response.
+    _Read Only_, _length<=36_
+    
++ `deviceFingerprintingId`:`123e4567-e89b-12d3-a456-426655440000` (string, required) - This is the UUID used with device fingerprinting.
+
++ `merchantRefNum`:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
+    _length<=255_
+
++ `amount`:`501` (number, required) - This is the amount of the request, in minor units.
+    _length<=99999999999_
+
++ `currency`:`USD` (string, required) - This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#CurrencyCodes).
+    _length=3_
+
++ Include Card
+
++ `merchantUrl`:`https://www.mysite.com` (string, required) - This is the fully qualified URL of the merchant's commercial or customer care website.
+    _length<=2048_
+
++ `txnTime`:`2019-01-21T16:28:17.735Z` (string) - This is the date and time the request was processed.
+    _Read Only_, _UTC formatted date_
+
++ Include Error
+
++ `status`:`COMPLETED` (enum) - This is the status of the authentication.
+    _Read Only_
+
+    + Members
+        + `PENDING`
+        + `COMPLETED`
+        + `FAILED`
+
++ `acsURL`:`https://www.acs.com` (string) - This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.
+  **Note:** This only exists if a challenge is required.
+    _Read Only_, _length<=28_
+
++ `payload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS). 
+  **Note:** This only exists if a challenge is required.
+    _Read Only_, _length<=2048_
+
++ `threeDEnrollment`:`Y` (enum) - This indicates whether the cardholder is enrolled in 3D Secure.
+  **Note:** This only exists for 3DS 1.0.
+    _Read Only_
+    + Members
+        + `Y`
+        + `N`
+        + `U`
+
++ `threeDResult`:`Y` (enum) - This indicates the outcome of the authentication.
+  **Note:** The _C_ and _R_ values only exist for 3DS 2.0.
+    _Read Only_
+    + Members
+        + `Y`
+        + `A`
+        + `N`
+        + `U`
+        + `C`
+        + `R`
+
++ `threeDSecureVersion`:`2.1.0` (string) - This is the 3D secure protocol version.
+    _Read Only_, _min=5_ _max=8_
+
++ `directoryServerTransactionId`:`123e4567-e89b-12d3-a456-4266554456745` (string) - This is the directory server transaction ID required for Mastercard.
+  **Note:** This only exists for 3DS 2.0.
+    _Read Only_, _length<=36_
+
++ `eci`:`5` (number) - This is the E-Commerce Indicator (ECI). 
+  **Note:** This only exists when no challenge is required, i.e., a frictionless authentication.
+    _Read Only_, _length<=2_
+  
++ `cavv`:`AAABBhkXYgAAAAACBxdiENhf7A+=` (string) - This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated.
+  **Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.
+    _Read Only_, _length<=28_
+
++ `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
+  **Note:** This only exists for 3DS 1.0.
+    _Read Only_, _length<=40_
+
++ `sdkChallengePayload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is a payload that, if returned, should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.
+  **Note:** This only exists when a challenge is required.
+    _Read Only_, _length<=9999_
+
++ `transactionIntent`:`GOODS_OR_SERVICE_PURCHASE` (enum) - This identifies the type of transaction being authenticated. 
+  **Note:** This element is only required in certain markets, e.g., Brazil.
+  
+    + Members
+        + `GOODS_OR_SERVICE_PURCHASE`
+        + `CHECK_ACCEPTANCE`
+        + `ACCOUNT_FUNDING`
+        + `QUASI_CASH_TRANSACTION`
+        + `PREPAID_ACTIVATION`
+
++ `maxAuthorizationsForInstalmentPayment`:`2` (number) - This is the maximum number of authorizations permitted for instalment payments. **Note:** This element is only required required if the merchant and cardholder have agreed to instalment payments, i.e., if _authenticationPurpose_=INSTALMENT_TRANSACTION.
+    _length=999_ 
+
++ `authenticationPurpose`:`INSTALMENT_TRANSACTION` (enum, required) - This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. 
+
+    + Members
+        + `PAYMENT_TRANSACTION`
+        + `RECURRING_TRANSACTION`
+        + `INSTALMENT_TRANSACTION`
+        + `ADD_CARD`
+        + `MAINTAIN_CARD`
+        + `EMV_TOKEN_VERIFICATION`
+
++ `deviceChannel`:`BROWSER` (enum, required) - This is the type of channel interface used to initiate the transaction. 
+
+    + Members
+        + `BROWSER`
+        + `APP`
+        + `3RI`
+
++ `messageCategory`:`PAYMENT` (enum, required) - This is the category of the message for a specific use case. 
+
+    + Members
+        + `PAYMENT`
+        + `NON_PAYMENT`
+
++ `initialPurchaseTime`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the purchase in UTC format.         
+  **Note:** This element is only required if _messageCategory_=PAYMENT, or, if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.
+
++ `requestorChallengePreference`:`CHALLENGE_REQUESTED` (enum) - This indicates whether a challenge is requested for this transaction. 
+
+    + Members
+        + `NO_PREFERENCE`
+        + `NO_CHALLENGE_REQUESTED`
+        + `CHALLENGE_REQUESTED`
+        + `CHALLENGE_MANDATED`
+
++ Include Electronic Delivery
++ Include Order Item Details
++ Include Purchased Gift Card Details
++ Include Billing Cycle
++ Include Browser Details
++ Include User Account Details
++ Include Billing Details
++ Include Shipping Details
++ Include Profile
+
+
+## Billing Cycle
+
++ `billingCycle` (object) - This is the billing cycle information for recurring payments.
+
+    + Properties
+    
+        + `endDate`:`2019-01-26` (string, required) - This is the date after which no further authorizations will be performed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD. The _billingCycle_ object is optional; however, if the object is used, this element is required.
+        + `frequency`:`1` (number, required) - This is the minimum number of days between authorizations. The _billingCycle_ object is optional; however, if the object is used, this element is required.
+          _max=9999_     
+
+## Billing Details
+
++ `billingDetails` (object) - These are the [billing details](#billingdetailsobject) for the request. Note that this object is required for the request *only when* a payment token is not provided.
+
+    + Properties
+    
+        + street:`100 Queen Street West` (string) - This is the first line of the street address in the billing address.
+            _length<=50_
+        + street2:`Apt. 55` (string) - This is the second line of the street address in the billing address, if required (e.g., apartment number).
+            _length<=50_
+        + city:`Ottawa` (string) - This is the city in the billing address.
+            _length<=40_
+        + state:`ON` (string) - Use the 2-character [state codes](#statecodes) or [province codes](#provincecodes) for Canada or the United States.
+            _length=2_
+        + country:`CA` (string) - See [Country Codes](#countrycodes).
+            _length=2_        
+        + zip:`M1M 1M1` (string) - This is the postal/zip code in the billing address.
+            _length<=10_
+    
+## Browser Details
+
++ `browserDetails` (object) - These are the browser details.
+  **Note:** This object is not required if the Paysafe JavaScript SDK is used for device fingerprinting. 
+
+    + Properties
+    
+        + `acceptHeader`:(number, required) - This is the exact content of the HTTP accept header as sent to the 3DS Requestor from the cardholder’s browser.
+          _length<=2048_
+        + `colorDepthBits`:`24` (enum, required) - This is the bit depth of the colour palette for displaying images, in bits per pixel.
+        
+            + Members
+                + `1`
+                + `4`
+                + `8`
+                + `15`
+                + `16`
+                + `24`
+                + `32`
+                + `48`
+                
+        + `customerIp`:`207.48.141.20` (string, required) - This is the customer's IP address.
+          _Valid IPv4/IPv6_
+        + `javaEnabled`:`true` (boolean, required) - This indicates whether the cardholder's browser is able to execute Java.
+        + `javascriptEnabled`:`true` (boolean, required) - This indicates whether the cardholder's browser is able to execute JavaScript.
+        + `language`:`en-US` (string, required) - This is the language in the browser.
+          _length<=8_          
+        + `screenHeight`:`768` (number, required) - This is the total height of the cardholder’s screen in pixels.
+          _max=999999_
+        + `screenWidth`:`1024` (number, required) - This is the total width of the cardholder’s screen in pixels.
+          _max=999999_
+        + `timezoneOffset`:`240` (number, required) - This is the time-zone offset in minutes between UTC and the local time of the cardholder's browser.
+          _max=99999_
+        + `userAgent`:`Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)` (string, required) - This is the User-Agent header from the customer's browser.
+          _length<=256_ 
+          
+## Card
+
++ `card` (object, required) - These are the details of the card used in the request. When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
+    + Properties
+        
+        + `holderName`:`John Smith` (string) - This is the name of the cardholder.
+            _length<=160_
+        + `cardBin`:`411111` (string) - This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card.
+            _length<=6_
+        + `cardNum`:`4111111111111111` (string, required) - This is the card number used for the request.
+            _length=8-20_
+        + Include Card Expiry
+        + `type`:`VI` (enum) - This is the type of card used for the request.
+            _Read Only_
+            + Members
+                + `MC`
+                + `VI`        
+        + `lastDigits`:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.
+            _Read Only_
+        + `paymentToken`:`CBQckvn3uDdNQPS` (string) - If the payment token is provided, no other card information is necessary.
+            _length<=80_  
+
+## Card Expiry
+
++ `cardExpiry` (object, required) - This is the card expiry date.
+
+    + Properties
+    
+        + `month`:11 (string, required) - This is the month the card expires.
+            _length=2_
+        + `year`:2020 (string, required) - This is the year the card expires.
+            _length=4_
+
+## Date of Birth
+
++ `dateOfBirth` (object) - This is the date of birth of the customer associated to the this profile. 
+
+    + Properties
+    
+        + `day`:`29` (number) - This is the 2-digit day of birth of the customer associated to the this profile.
+            _length=2_
+        + `month`:`12` (number) - This is the 2-digit month of birth of the customer associated to the this profile.
+            _length=2_
+        + `year`:`2020` (number) - This is the 4-digit year of birth of the customer associated to the this profile.
+            _length=4_
+
+## Electronic Delivery
+
++ `electronicDelivery` (object) - This is the electronic delivery information.
+
+    + Properties
+    
+        + `isElectronicDelivery`:true (boolean, required) - This indicates whether there is an electronic delivery for the product. The _electronicDelivery_ object is optional; however, if the object is used, this element is required.
+        + `email`:`example@example.com` (string) - This is the the email address to which the merchandise was delivered.
+          _length<=240_
+
+## Error
+
++ `error` (object)
+    _Read Only_
+
+    + Properties
+    
+        + `code`:`1000` (string) - This is the error code.
+        + `message`:`Internal Error` (string) - This is a description of the error.
+
+## Expiry Date
+
++ `expiryDate` (object) - This is the expiration date of the document.
+
+    + Properties
+    
+        + `day`:`29` (number) - This is the day when the document will expire.
+            _length=2_
+        + `month`:`12` (number) - This is the month when the document will expire.
+            _length=2_
+        + `year`:`2020` (number) - This is the year when the document will expire.
+            _length=4_
+
+## Identity Documents
+
++ `identityDocuments` (object) - This is an array of documents and customer information.
+
+    + Properties
+        + Include Type
+        + `documentNumber`:`1234567890` (string, required) - This is the unique document identification number.
+          _length<=50_        
+        + `issuingCountry`:`US` (string) - This is the country that issued the government ID. In the USA, this would be US.
+          _length=2_
+        + `issuingCountrySubdvision`:`IL` (string) - This is the country subdivision that issued the government ID. In the USA, this would be the appropriate state code.
+          _length=2_          
+        + Include Issue Date
+        + Include Expiry Date
+
+## Issue Date
+
++ `issueDate` (object) - This is the issue date of the document.
+
+    + Properties
+    
+        + `day`:`29` (number) - This is the day when the document was issued.
+            _length=2_
+        + `month`:`12` (number) - This is the month when the document was issued.
+            _length=2_
+        + `year`:`2018` (number) - This is the year when the document was issued.
+            _length=4_
+
+## Order Item Details
+
++ `orderItemDetails` (object) - These are the details of a previously made purchase or preorder.
+
+    + Properties
+    
+        + `preOrderItemAvailabilityDate`:`2014-01-26` (string) - For a pre-ordered purchase, this is the date that the merchandise is expected to be available. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `preOrderPurchaseIndicator`:`MERCHANDISE_AVAILABLE` (enum) - This indicates whether the cardholder is placing an order for available merchandise or merchandise with a future availability or release date.
+        
+            + Members
+                + `MERCHANDISE_AVAILABLE`
+                + `FUTURE_AVAILABILITY`
+                
+        + `reorderItemsIndicator`:`FIRST_TIME_ORDER` (enum) - This indicates whether the cardholder is reordering merchandise.
+        
+            + Members
+                + `FIRST_TIME_ORDER`
+                + `REORDER`
+                
+        + `shippingIndicator`:`SHIP_TO_BILLING_ADDRESS` (enum) - This is the shipping method for the transaction.
+        
+            + Members
+                + `SHIP_TO_BILLING_ADDRESS`
+                + `SHIP_TO_VERIFIED_ADDRESS`
+                + `SHIP_TO_DIFFERENT_ADDRESS`
+                + `SHIP_TO_STORE`
+                + `DIGITAL_GOODS`
+                + `TRAVEL_AND_EVENT_TICKETS`
+                + `OTHER`
+           
+## Payment Account Details
+
++ `paymentAccountDetails` (object) - These are the details of the current payment account of the cardholder.
+
+    + Properties
+    
+        + `createdDate`:`2014-01-26` (string) - This is the date that the cardholder opened the account with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `createdRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This indicates the length of time that the payment account was enrolled in the cardholder’s account with the 3DS Requestor.
+        
+            + Members
+                + `NO_ACCOUNT`
+                + `DURING_TRANSACTION`
+                + `LESS_THAN_THIRTY_DAYS`
+                + `THIRTY_TO_SIXTY_DAYS`
+                + `MORE_THAN_SIXTY_DAYS`
+
+## Prior ThreeDS Authentication
+
++ `priorThreeDSAuthentication` (object) - This is the previous authentication information used with current merchant, cardholder, and card.
+
+    + Properties
+    
+        + `data`: (string) - This field is reserved for future iterations of 3DS 2.0.
+          _max=2048 bytes_
+        + `method`:`FRICTIONLESS_AUTHENTICATION` (enum) - This is the mechanism used previously by the cardholder to authenticate to the 3DS Requestor.
+        
+            + Members
+                + `FRICTIONLESS_AUTHENTICATION`
+                + `ACS_CHALLENGE`
+                + `AVS_VERIFIED`
+                + `OTHER_ISSUER_METHOD`
+                
+        + `id`:`123e4567-e89b-12d3-a456-426655440000` (string) - This is a previous authentication ID for the cardholder.
+          _length<=36_        
+        + `time`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.
+
+## Profile
+
++ `profile` (object) -  This is the customer profile.
+
+    + Properties
+    
+        + `title`:`Mr.` (string) - This is the title of the customer.
+        + `firstName`:`John` (string) - This is the first name of the customer.
+            _length<=80_
+        + `lastName`:`Smith` (string) - This is the last name of the customer.
+            _length<=80_
+        + `email`:`jsmith@email.com` (string) - This is the email address of the customer.
+            _length<=255_
+        + Include Date of Birth
+        + `gender`:`M` (enum) - This is the specified gender of the customer.
+        
+            + Members
+                + `M – Male`
+                + `F – Female`
+                + `O – Other`
+                + `N – Not Specified`
+                
+        + Include Identity Documents 
+        + `kycStatus`:`VERIFIED` (enum) - This is the KYC status of the consumer at the merchant.
+        
+            + Members
+                + `UNVERIFIED`
+                + `PARTIALLY_VERIFIED`
+                + `VERIFIED`
+                
+        + `phone`:`5555555555` (string) - This is the customer's primary phone.
+            _length<=40_
+        + `cellphone`:`5141234567` (string) - This is the customer's cell phone.
+            _length<=40_
+        + `locale`:`en` (string) - This is the ISO language code representing the preferred language for this profile.
+            _length=2_
+            
+## Purchased Gift Card Details
+
++ `purchasedGiftCardDetails` (object) - These are the details of a previously made gift card purchase.
+
+    + Properties
+    
+        + `amount`:`1234` (number) - This is the amount of the gift card, in minor units.
+          _max=99999999999_        
+        + `count`:`2` (number) - This is the total count of individual prepaid or gift cards or codes purchased.
+          _max=99_
+        + `currency`:`USD` (string) - This is the currency of the gift card. See [Currency Codes](#CurrencyCodes).
+          _length=3_
+
+## Shipping Details
+
++ `shippingDetails` (object) - This is the shipping address of the customer.
+
+    + Properties
+    
+        + `carrier`:`CAD` (enum) - This is the shipment carrier.
+        
+            + Members
+                + `APC – APC Overnight`
+                + `APS – Anpost`
+                + `CAD – Canada Postal Service`
+                + `DHL – DHL`
+                + `FEX – Fedex`
+                + `RML – Royal Mail`
+                + `UPS – United Parcel Service`
+                + `USPS – United States Postal Service`
+                + `CLK – CityLink`
+                + `EMS – EMS (US Postal Service)`
+                + `NEX – Nexworldwide`
+                + `OTHER`
+                
+        + `shipMethod`:`T` (enum) - This is the shipment method.
+        
+            + Members
+                + `N – Next Day/Overnight`
+                + `T – Two-Day Service`
+                + `C – Lowest Cost`
+                + `O – Other`
+                + `S - Same Day`
+                
+        + `recipientName`:`Jane Smith` (string) - This is the name of the person receiving the goods.
+            _length<=255_
+        + `company`:`Company Inc.` (string) - This is the company receiving the goods.
+            _length<=255_
+        + `street`:`102 Queen Street West` (string) - This is the first line of the street address in the shipping address.
+            _length<=50_
+        + `street2`:`Apt. 55` (string) - This is the second line of the street address in the shipping address, if required (e.g., apartment number).
+            _length<=50_
+        + `city`:`Toronto` (string) - This is the city in the shipping address.
+            _length<=40_
+        + `state`:`ON` (string) - This is the state or province in the shipping address.
+            _length<=40_
+        + `country`:`CA` (string) - This is the country in the shipping address.
+            _length<=2_
+        + `zip`:`M5H 2N2` (string) - This is the postal/zip code in the shipping address.
+            _length<=10_
+
+## Shipping Details Usage
+
++ `shippingDetailsUsage` (object) - This is the shipping usage information.
+
+    + Properties
+    
+        + `cardHolderNameMatch`:`true` (boolean) - This indicates whether the cardholder name on the account is identical to the shipping name used for this transaction.
+        + `initialUsageDate`:`2014-01-26` (string) - This is the date when the shipping address for this transaction was first used with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `initialUsageRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This is the length of time between the first use of this shipping address and the current transaction.
+        
+            + Members
+                + `CURRENT_TRANSACTION`
+                + `LESS_THAN_THIRTY_DAYS`
+                + `THIRTY_TO_SIXTY_DAYS`
+                + `MORE_THAN_SIXTY_DAYS`
+
+## Travel Details
+
++ `travelDetails` (object) - These are the Amex-specific travel details.
+  **Note:** This element is only required if _isAirTravel_=true.
+  
+    + Properties
+    
+        + `isAirTravel`:`true` (boolean) - This indicates whether the transaction is an air travel related purchase, e.g., a ticket purchase. Default is _false_.
+        + `airlineCarrier`:`Windsor` (string) - This is the selected airline carrier.
+          _length<=256_
+        + `departureDate`:`2014-01-26` (string) - This is the date of departure in the time zone of the departure location. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `destination`:`SOF` (string) - This is the airport code of the destination airport.
+          _length<=5_
+        + `origin`:`BCN` (string) - This is the airport code of the originating airport.
+          _length<=5_
+        + `passengerFirstName`:`John` (string) - This is the first name of the cardholder from the billing details.
+          _length<=99_
+        + `passengerLastName`:`Smith` (string) - This is the last name of the cardholder from the billing details.
+          _length<=99_  
+
+## Type
+
++ One of
+
+    + type (enum, required) - This is the type of identification document for _individuals_. Only one **type** element can be included in the request.
+        + Members
+            + `PASSPORT`
+            + `IDENTITY_CARD`
+            + `DRIVING_LICENSE`
+            + `SOCIAL_SECURITY`
+            + `NATIONAL_IDENTITY`
+            + `TAX_IDENTIFICATION`    
+                
+    + type (enum, required) - This is the type of identification document for _companies_. Only one **type** element can be included in the request.
+        + Members
+            + `REGISTRATION_ID`
+            + `ACRA`
+            + `LICENSE_NUMBER`
+            + `REGISTRATION_NUMBER`
+            
+## User Account Details
+
++ `userAccountDetails` (object) - These are the user account details from the merchant website.
+  **Note:** This element is only required if _isAirTravel_=true. 
+
+    + Properties
+    
+        + `createdDate`:`2014-01-26` (string) - This is the date when the cardholder opened the account with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `createdRange`:`DURING_TRANSACTION` (enum) - This is the length of time between the cardholder opening the account with the 3DS Requestor and the API call of the current transaction.
+        
+            + Members
+                + `NO_ACCOUNT`
+                + `DURING_TRANSACTION`
+                + `LESS_THAN_THIRTY_DAYS`
+                + `THIRTY_TO_SIXTY_DAYS`
+                + `MORE_THAN_SIXTY_DAYS`  
+                
+        + `changedDate`:`2017-01-26` (string) - This is the date that the cardholder’s account with the 3DS Requestor was last changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.                
+        + `changeRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction.
+        
+            + Members
+                + `DURING_TRANSACTION`
+                + `LESS_THAN_THIRTY_DAYS`
+                + `THIRTY_TO_SIXTY_DAYS`
+                + `MORE_THAN_SIXTY_DAYS`
+                
+        + `passwordChangedDate`:`2017-01-26` (string) - This is the date when the cardholder’s account was reset or the password was changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
+        + `passwordChangedRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This is the length of time between the most recent password change or cardholder account reset and the API call of the current transaction.
+        
+            + Members
+                + `NO_CHANGE`
+                + `DURING_TRANSACTION`
+                + `LESS_THAN_THIRTY_DAYS`
+                + `THIRTY_TO_SIXTY_DAYS`
+                + `MORE_THAN_SIXTY_DAYS`
+                
+        + `totalPurchasesSixMonthCount`:`1` (number) - This is the total number of purchases from this cardholder account in the previous six months.
+          _length<=9999_
+        + `addCardAttemptsForLastDay`:`1` (number) - This is the number of Add Card attempts in the last 24 hours.
+          _max=999_
+        + `transactionCountForPreviousDay`:`1` (number) - This is the total number of purchases from this cardholder account in the previous six months.
+          _max=999_
+        + `transactionCountForPreviousYear`:`3` (number) - This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous year.
+          _max=999_
+        + `suspiciousAccountActivity`:`false` (boolean) - This indicates whether the 3DS Requestor has experienced suspicious activity, including previous fraud, on the cardholder account.
+        + Include Shipping Details Usage
+        + Include Payment Account Details
+        + Include User Login
+        + Include Prior ThreeDS Authentication
+        + Include Travel Details
+
+## User Login
+
++ `userLogin` (object) - This is the cardholder login information.
+
+    + Properties
+    
+        + `data`: (string) - This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.
+          _max=2048 bytes_
+        + `authenticationMethod`:`THIRD_PARY_AUTHENTICATION` (enum) - This is the mechanism used by the cardholder to authenticate to the 3DS Requestor.
+        
+            + Members
+                + `NO_LOGIN`
+                + `INTERNAL_CREDENTIALS`
+                + `FEDERATED_ID`
+                + `ISSUER_CREDENTIALS`
+                + `THIRD_PARY_AUTHENTICATION`
+                + `FIDO_AUTHENTICATOR`
+                
+        + `time`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.
