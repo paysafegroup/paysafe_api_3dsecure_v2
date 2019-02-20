@@ -22,7 +22,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 **Setup and Device Collection**
 
-- Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject).
+- Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject).
 
 - The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
 
@@ -34,7 +34,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 **Challenge Flow**
 
-- The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+- The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
 - The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
@@ -122,7 +122,7 @@ The Paysafe Test environment can be used to test websites or applications withou
 
 Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-secure-results-and-liability-shift/) for details of 3D Secure results and liability shift.--->
 
-<a name="sdk" title="SDK"></a>
+<a name="javascriptsdk" title="JavaScript SDK"></a>
 # JavaScript SDK
 
 ## How to Use the SDK
@@ -131,6 +131,12 @@ Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-
 ## Including the SDK 
 
 The SDK is located here: `https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js`
+
+You need to include it in your HTML form by adding a `<script>` element in either the header or body.
+
+<head>
+    <script src="https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js"></script>
+</head>
 
 <a name="usingtheapi" title="Using The API"></a>
 # Using the API
@@ -151,7 +157,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 ![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserFrictionless.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
 1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
 
@@ -175,7 +181,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 ![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserChallenge.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
 1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
 
@@ -187,7 +193,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 1. Paysafe links the authentication to the customer's card and returns a response to the merchant, which contains the _threeDResult_, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
 
-1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
 1. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
