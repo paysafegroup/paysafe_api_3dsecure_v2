@@ -145,42 +145,42 @@ The function signature is as follows:
 
 `start(apiKey, StartOptions, TdsCallback)`
 
-|Element                    |Type       |Description |
-|---                        |---        |---    |
-|apiKey                     |string     |This is your Base64-encoded API key, available in the Business Portal.|
-|startOptions               |object     |This is used to handle device fingerprinting.   |
-|TdsCallback                |function   |   |
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
+|startOptions               |[object](#startoptions)            |This is used to handle device fingerprinting.   |
+|TdsCallback                |function                           |   |
 
 <a name="challengefunction" title="Challenge Function"></a>
 ## Challenge Function
 
-The challenge function handles the challenge flow if the card issuer requires additional customer verification (_threeDResult_=_C_).
+The challenge function handles the challenge flow if the card issuer requires additional customer verification (_status_=PENDING, _threeDResult_=C).
 
 The function signature is as follows:
 
 `challenge(apiKey, ChallengeOptions, TdsCallback)`
 
-|Element                    |Type       |Description |
-|---                        |---        |---    |
-|apiKey                     |string     |This is your Base64-encoded API key, available in the Business Portal.|
-|ChallengeOptions           |object     |This is used to handle the challenge flow.   |
-|TdsCallback                |function   |   |
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
+|ChallengeOptions           |[object](#challengeoptions)        |This is used to handle the challenge flow.   |
+|TdsCallback                |function                           |   |
 
 <a name="startoptions" title="Start Options"></a>
 ## Start Options
 
-|Element                    |Type       |Description |
-|---                        |---        |---    |
-|accountID                  |string     |This is|
-|card                       |object     |This is    |
-|environment                |string     |   |
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|accountID                  |string                             |This is|
+|card                       |[object](#cardobject)              |These are the details of the card used for the request.|
+|environment                |string                             |   |
 
 <a name="challengeoptions" title="Challenge Options"></a>
 ## Challenge Options
 
 |Element                    |Type       |Description |
 |---                        |---        |---    |
-|sdkChallengePayload        |string     |This is |
+|sdkChallengePayload        |string<br/>`length<=9999`     |This is a payload that should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required. |
 |environment                |string     |   |
 
 <a name="usingtheapi" title="Using The API"></a>
@@ -821,7 +821,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
     "state": "AL",
     "street": "My street 1",
     "street2": "My street 2",
-    "zip": "CHY987"
+    "zip": "CHY987",
     "shipMethod": "S"
   },
   "profile": {
@@ -883,8 +883,8 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
       "isAirTravel": true,
       "airlineCarrier": "Wizz air",
       "departureDate": "2014-01-26",
-      "destination": "Bulgaria",
-      "origin": "China",
+      "destination": "SOF",
+      "origin": "BCN",
       "passengerFirstName": "John",
       "passengerLastName": "Smith"
     },
@@ -895,7 +895,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
     }
   },
   "browserDetails": {
-    "acceptHeader": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "acceptHeader": "*/*",
     "colorDepthBits": "24",
     "customerIp": "207.48.141.20",
     "javascriptEnabled": true,
