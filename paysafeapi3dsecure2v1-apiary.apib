@@ -22,7 +22,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 **Setup and Device Collection**
 
-- Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject).
+- Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject).
 
 - The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
 
@@ -34,7 +34,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 **Challenge Flow**
 
-- The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+- The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
 - The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
@@ -122,15 +122,81 @@ The Paysafe Test environment can be used to test websites or applications withou
 
 Click [here](https://developer.paysafe.com/en/rest-apis/3ds/test-and-go-live/3d-secure-results-and-liability-shift/) for details of 3D Secure results and liability shift.--->
 
-<a name="sdk" title="SDK"></a>
+<a name="javascriptsdk" title="JavaScript SDK"></a>
 # JavaScript SDK
-
-## How to Use the SDK
-
 
 ## Including the SDK 
 
 The SDK is located here: `https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js`
+
+You need to include it in your HTML form by adding a `<script>` element in either the header or body.
+
+```apib
+<head>
+    <script src="https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js"></script>
+</head>
+```
+
+<a name="startfunction" title="Start Function"></a>
+## Start Function
+
+The start function initiates the authentication process. This function handles the device fingerprinting and returns the _deviceFingerprintingId_ parameter used for the Authentication request.
+
+The function signature is as follows:
+
+`start(apiKey, StartOptions, TdsCallback)`
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
+|StartOptions               |[object](#startoptions)            |This is used to handle device fingerprinting.   |
+|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _start_ function.   |
+
+<a name="challengefunction" title="Challenge Function"></a>
+## Challenge Function
+
+The challenge function handles the challenge flow if the card issuer requires additional customer verification (_status_=PENDING, _threeDResult_=C).
+
+The function signature is as follows:
+
+`challenge(apiKey, ChallengeOptions, TdsCallback)`
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
+|ChallengeOptions           |[object](#challengeoptions)        |This is used to handle the challenge flow.   |
+|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _challenge_ function.   |
+
+<a name="callbackfunction" title="Callback Function"></a>
+## Callback Function
+
+The callback function is invoked to complete the _start_ or _challenge_ function.
+
+The function signature is as follows:
+
+`callback(id, error)`
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|id                         |string                             |This is the ID.|
+|error                      |[error](#javascriptsdkerrorcode)   |This is the error code.   |
+
+<a name="startoptions" title="Start Options"></a>
+## StartOptions
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|accountID                  |string                             |This is the merchant account ID.|
+|card                       |[object](#cardobject)              |These are the details of the card used for the request.|
+|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.|
+
+<a name="challengeoptions" title="Challenge Options"></a>
+## ChallengeOptions
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|sdkChallengePayload        |string<br/>`length<=9999`          |This is a payload that should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required. |
+|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.   |
 
 <a name="usingtheapi" title="Using The API"></a>
 # Using the API
@@ -151,7 +217,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 ![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserFrictionless.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
 1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
 
@@ -175,7 +241,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 ![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserChallenge.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#sdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
 1. The JavaScript SDK sends the BIN to the Paysafe 3DS 2.0 API and opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3DS 2.0; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
 
@@ -187,7 +253,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 1. Paysafe links the authentication to the customer's card and returns a response to the merchant, which contains the _threeDResult_, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
 
-1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#sdk) method to the Paysafe JavaScript SDK.
+1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
 1. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
@@ -228,8 +294,6 @@ The following request type is supported:
 |---                                                |---                                                |---    |
 |/authentications                                   |Authenticate a card with 3D Secure                 |POST   |
 |/authentications/{authentication_id}               |Look up an Authentication request                  |GET    |
-
-
 
 <!---# Getting Started
 
@@ -770,7 +834,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
     "state": "AL",
     "street": "My street 1",
     "street2": "My street 2",
-    "zip": "CHY987"
+    "zip": "CHY987",
     "shipMethod": "S"
   },
   "profile": {
@@ -832,8 +896,8 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
       "isAirTravel": true,
       "airlineCarrier": "Wizz air",
       "departureDate": "2014-01-26",
-      "destination": "Bulgaria",
-      "origin": "China",
+      "destination": "SOF",
+      "origin": "BCN",
       "passengerFirstName": "John",
       "passengerLastName": "Smith"
     },
@@ -844,7 +908,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
     }
   },
   "browserDetails": {
-    "acceptHeader": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "acceptHeader": "*/*",
     "colorDepthBits": "24",
     "customerIp": "207.48.141.20",
     "javascriptEnabled": true,
@@ -1405,6 +1469,18 @@ When providing card information, merchants can provide either card details or a 
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
 
+<a name="javascriptsdkerrorcode" title="JavaScript SDK Error Code"></a>
+## JavaScript SDK Error Codes
+
+|Error Code                 |Description|
+|---                        |---|
+|9004                       |Callback should be a function. |
+|9012                       |Invalid number of arguments. |
+|9013                       |Invalid apiKey parameter. |
+|9014                       |An unhandled error occured. |
+|9015                       |Invalid options argument. |
+|9500                       |Invalid option fields: ${fields}. |
+
 # Using the example API calls (Console Window)
 To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
 Using the Console window you can update the headers, the request body, and parts of the API endpoint. 
@@ -1447,13 +1523,16 @@ This call returns a status of READY if the API is available.
 ## Authentications [POST /v2/accounts/{account_id}/authentications]
 <a name="authentication" title="Authentication"></a>
 
-Click on **Authentications** above to see an example of an Authentication request.
+Click on **Authentications** above to see three examples of a browser-based Authentication request:
+- A browser-based authentication request with a frictionless authentication
+- A browser-based authentication request with a challenge from the card issuer
+- A browser-based authentication request to an issuer using 3DS 1.0
 
 + Parameters
 
     + account_id:123456789 (string, required) - This is the merchant account number.
 
-+ Request Authentication (application/json)
++ Request Authentication - Browser flow with "frictionless" authentication (application/json)
 
     + Headers
             
@@ -1493,7 +1572,180 @@ Click on **Authentications** above to see an example of an Authentication reques
                 "state": "AL",
                 "street": "My street 1",
                 "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+              "deviceChannel": "BROWSER",
+              "requestorChallengePreference": "NO_PREFERENCE",
+              "messageCategory": "PAYMENT",
+              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+              "authenticationPurpose": "PAYMENT_TRANSACTION",
+              "maxAuthorizationsForInstalmentPayment": 2,
+              "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
+              "billingcycle": {
+                "endDate": "2014-01-26",
+                "frequency": 1
+              },
+              "orderItemDetails": {
+                "preOrderItemAvailabilityDate": "2014-01-26",
+                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+              },
+              "purchasedGiftCardDetails": {
+                "amount": 1234,
+                "count": 2,
+                "currency": "USD"
+              },
+              "userAccountDetails": {
+                "addCardAttemptsForLastDay": 1,
+                "changedDate": "2014-01-26",
+                "changedRange": "DURING_TRANSACTION",
+                "createdDate": "2014-01-26",
+                "createdRange": "NO_ACCOUNT",
+                "passwordChangedDate": "2014-01-26",
+                "passwordChangedRange": "NO_CHANGE",
+                "paymentAccountDetails": {
+                  "createdRange": "NO_ACCOUNT",
+                  "createdDate": "2014-01-26"
+                },
+                "priorThreeDSAuthentication": {
+                  "data": "Some up to 2048 bytes undefined data",
+                  "method": "FRICTIONLESS_AUTHENTICATION",
+                  "id": "123e4567-e89b-12d3-a456-426655440000",
+                  "time": "2014-01-26T10:32:28Z"
+                },
+                "shippingDetailsUsage": {
+                  "cardHolderNameMatch": true,
+                  "initialUsageDate": "2014-01-26",
+                  "initialUsageRange": "CURRENT_TRANSACTION"
+                },
+                "suspiciousAccountActivity": true,
+                "totalPurchasesSixMonthCount": 1,
+                "transactionCountForPreviousDay": 1,
+                "transactionCountForPreviousYear": 3,
+                "travelDetails": {
+                  "isAirTravel": true,
+                  "airlineCarrier": "Wizz air",
+                  "departureDate": "2014-01-26",
+                  "destination": "SOF",
+                  "origin": "BCN",
+                  "passengerFirstName": "John",
+                  "passengerLastName": "Smith"
+                },
+                "userLogin": {
+                  "authenticationMethod": "NO_LOGIN",
+                  "data": "Some up to 2048 bytes undefined data",
+                  "time": "2014-01-26T10:32:28Z"
+                }
+              },
+              "browserDetails": {
+                "acceptHeader": "*/*",
+                "colorDepthBits": "24",
+                "customerIp": "207.48.141.20",
+                "javascriptEnabled": true,
+                "javaEnabled": true,
+                "language": "en-US",
+                "screenHeight": 768,
+                "screenWidth": 1024,
+                "timezoneOffset": 240,
+                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+              }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "123e4567-e89b-12d3-a456-4266554456745",
+              "cavv": "BwAQATkhGAEAABVIFSEYEGkybeU=",
+              "eci": 5,
+              "status": "COMPLETED",
+              "threeDResult": "Y",
+              "txnTime": "2019-01-21T16:28:17.735Z",
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardBin": "411111",
+                "lastDigits": "1111",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
                 "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
+              "threeDSecureVersion": "2.1.0"
+             }
+
++ Request Authentication - Browser flow with issuer challenge (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+            {
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardNum": "4111111111111111",
+                "paymentToken": "SCrkVsiwgvcykjLA",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
                 "shipMethod": "S"
               },
               "profile": {
@@ -1555,8 +1807,8 @@ Click on **Authentications** above to see an example of an Authentication reques
                   "isAirTravel": true,
                   "airlineCarrier": "Wizz air",
                   "departureDate": "2014-01-26",
-                  "destination": "Bulgaria",
-                  "origin": "China",
+                  "destination": "SOF",
+                  "origin": "BCN",
                   "passengerFirstName": "John",
                   "passengerLastName": "Smith"
                 },
@@ -1578,7 +1830,7 @@ Click on **Authentications** above to see an example of an Authentication reques
                 "timezoneOffset": 240,
                 "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
               }
-            }            
+            }
             
 + Response 200 (application/json)
 
@@ -1587,12 +1839,7 @@ Click on **Authentications** above to see an example of an Authentication reques
             {
               "id": "123e4567-e89b-12d3-a456-4266554456745",
               "acsUrl": "https://www.acs.com",
-              "cavv": "BwAQATkhGAEAABVIFSEYEGkybeU=",
-              "xid": "MTU0ODE1MjExNDYzMXBVY1ZqU3k=",
-              "eci": 5,
-              "status": "COMPLETED",
-              "threeDEnrollment": "Y",
-              "threeDResult": "Y",
+              "status": "PENDING",
               "txnTime": "2019-01-21T16:28:17.735Z",
               "amount": 123,
               "currency": "EUR",
@@ -1621,7 +1868,7 @@ Click on **Authentications** above to see an example of an Authentication reques
                 "state": "AL",
                 "street": "My street 1",
                 "street2": "My street 2",
-                "zip": "CHY987"
+                "zip": "CHY987",
                 "shipMethod": "S"
               },
               "profile": {
@@ -1631,41 +1878,182 @@ Click on **Authentications** above to see an example of an Authentication reques
               },
               "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
               "threeDSecureVersion": "2.1.0",
-              "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI
-            4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk
-            5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHk
-            geW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI
-            6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3V
-            yIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmN
-            hcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1
-            lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmN
-            vbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmN
-            lLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2V
-            zL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmR
-            pbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODR
-            jMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF
-            0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8
-            /PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGV
-            jdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSB
-            sb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
-             
-             "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI
-            4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk
-            5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHk
-            geW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI
-            6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3V
-            yIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmN
-            hcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1
-            lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmN
-            vbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmN
-            lLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2V
-            zL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmR
-            pbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODR
-            jMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF
-            0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8
-            /PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGV
-            jdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSB
-            sb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+              "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
+              "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+             }
+
++ Request Authentication - Browser flow with fallback to 1.0 (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+            {
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardNum": "4111111111111111",
+                "paymentToken": "SCrkVsiwgvcykjLA",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+              "deviceChannel": "BROWSER",
+              "requestorChallengePreference": "NO_PREFERENCE",
+              "messageCategory": "PAYMENT",
+              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+              "authenticationPurpose": "PAYMENT_TRANSACTION",
+              "maxAuthorizationsForInstalmentPayment": 2,
+              "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+              "billingcycle": {
+                "endDate": "2014-01-26",
+                "frequency": 1
+              },
+              "orderItemDetails": {
+                "preOrderItemAvailabilityDate": "2014-01-26",
+                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+              },
+              "purchasedGiftCardDetails": {
+                "amount": 1234,
+                "count": 2,
+                "currency": "USD"
+              },
+              "userAccountDetails": {
+                "addCardAttemptsForLastDay": 1,
+                "changedDate": "2014-01-26",
+                "changedRange": "DURING_TRANSACTION",
+                "createdDate": "2014-01-26",
+                "createdRange": "NO_ACCOUNT",
+                "passwordChangedDate": "2014-01-26",
+                "passwordChangedRange": "NO_CHANGE",
+                "paymentAccountDetails": {
+                  "createdRange": "NO_ACCOUNT",
+                  "createdDate": "2014-01-26"
+                },
+                "priorThreeDSAuthentication": {
+                  "data": "Some up to 2048 bytes undefined data",
+                  "method": "FRICTIONLESS_AUTHENTICATION",
+                  "id": "123e4567-e89b-12d3-a456-426655440000",
+                  "time": "2014-01-26T10:32:28Z"
+                },
+                "shippingDetailsUsage": {
+                  "cardHolderNameMatch": true,
+                  "initialUsageDate": "2014-01-26",
+                  "initialUsageRange": "CURRENT_TRANSACTION"
+                },
+                "suspiciousAccountActivity": true,
+                "totalPurchasesSixMonthCount": 1,
+                "transactionCountForPreviousDay": 1,
+                "transactionCountForPreviousYear": 3,
+                "travelDetails": {
+                  "isAirTravel": true,
+                  "airlineCarrier": "Wizz air",
+                  "departureDate": "2014-01-26",
+                  "destination": "SOF",
+                  "origin": "BCN",
+                  "passengerFirstName": "John",
+                  "passengerLastName": "Smith"
+                },
+                "userLogin": {
+                  "authenticationMethod": "NO_LOGIN",
+                  "data": "Some up to 2048 bytes undefined data",
+                  "time": "2014-01-26T10:32:28Z"
+                }
+              },
+              "browserDetails": {
+                "acceptHeader": "*/*",
+                "colorDepthBits": "24",
+                "customerIp": "207.48.141.20",
+                "javascriptEnabled": true,
+                "javaEnabled": true,
+                "language": "en-US",
+                "screenHeight": 768,
+                "screenWidth": 1024,
+                "timezoneOffset": 240,
+                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+              }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "123e4567-e89b-12d3-a456-4266554456745",
+              "acsUrl": "https://www.acs.com",
+              "xid": "MTU0ODE1MjExNDYzMXBVY1ZqU3k=",
+              "status": "PENDING",
+              "threeDEnrollment": "Y",
+              "txnTime": "2019-01-21T16:28:17.735Z",
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardBin": "411111",
+                "lastDigits": "1111",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "threeDSecureVersion": "1.1.0",
+              "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
+              "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
              }
             
 ## Get Authentication [GET /v2/accounts/{account_id}/authentications/{authentication_id}]
