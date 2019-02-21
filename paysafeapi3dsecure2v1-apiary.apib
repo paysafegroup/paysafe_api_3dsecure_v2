@@ -1504,7 +1504,7 @@ Click on **Authentications** above to see an example of an Authentication reques
 
     + account_id:123456789 (string, required) - This is the merchant account number.
 
-+ Request Authentication (application/json)
++ Request Authentication - Browser flow with "frictionless" authentication (application/json)
 
     + Headers
             
@@ -1513,6 +1513,179 @@ Click on **Authentications** above to see an example of an Authentication reques
     + Attributes
     
         + Include Authentication Request
+        
+    + Body
+
+            {
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardNum": "4111111111111111",
+                "paymentToken": "SCrkVsiwgvcykjLA",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+              "deviceChannel": "BROWSER",
+              "requestorChallengePreference": "NO_PREFERENCE",
+              "messageCategory": "PAYMENT",
+              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+              "authenticationPurpose": "PAYMENT_TRANSACTION",
+              "maxAuthorizationsForInstalmentPayment": 2,
+              "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
+              "billingcycle": {
+                "endDate": "2014-01-26",
+                "frequency": 1
+              },
+              "orderItemDetails": {
+                "preOrderItemAvailabilityDate": "2014-01-26",
+                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+              },
+              "purchasedGiftCardDetails": {
+                "amount": 1234,
+                "count": 2,
+                "currency": "USD"
+              },
+              "userAccountDetails": {
+                "addCardAttemptsForLastDay": 1,
+                "changedDate": "2014-01-26",
+                "changedRange": "DURING_TRANSACTION",
+                "createdDate": "2014-01-26",
+                "createdRange": "NO_ACCOUNT",
+                "passwordChangedDate": "2014-01-26",
+                "passwordChangedRange": "NO_CHANGE",
+                "paymentAccountDetails": {
+                  "createdRange": "NO_ACCOUNT",
+                  "createdDate": "2014-01-26"
+                },
+                "priorThreeDSAuthentication": {
+                  "data": "Some up to 2048 bytes undefined data",
+                  "method": "FRICTIONLESS_AUTHENTICATION",
+                  "id": "123e4567-e89b-12d3-a456-426655440000",
+                  "time": "2014-01-26T10:32:28Z"
+                },
+                "shippingDetailsUsage": {
+                  "cardHolderNameMatch": true,
+                  "initialUsageDate": "2014-01-26",
+                  "initialUsageRange": "CURRENT_TRANSACTION"
+                },
+                "suspiciousAccountActivity": true,
+                "totalPurchasesSixMonthCount": 1,
+                "transactionCountForPreviousDay": 1,
+                "transactionCountForPreviousYear": 3,
+                "travelDetails": {
+                  "isAirTravel": true,
+                  "airlineCarrier": "Wizz air",
+                  "departureDate": "2014-01-26",
+                  "destination": "SOF",
+                  "origin": "BCN",
+                  "passengerFirstName": "John",
+                  "passengerLastName": "Smith"
+                },
+                "userLogin": {
+                  "authenticationMethod": "NO_LOGIN",
+                  "data": "Some up to 2048 bytes undefined data",
+                  "time": "2014-01-26T10:32:28Z"
+                }
+              },
+              "browserDetails": {
+                "acceptHeader": "*/*",
+                "colorDepthBits": "24",
+                "customerIp": "207.48.141.20",
+                "javascriptEnabled": true,
+                "javaEnabled": true,
+                "language": "en-US",
+                "screenHeight": 768,
+                "screenWidth": 1024,
+                "timezoneOffset": 240,
+                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+              }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "123e4567-e89b-12d3-a456-4266554456745",
+              "cavv": "BwAQATkhGAEAABVIFSEYEGkybeU=",
+              "eci": 5,
+              "status": "COMPLETED",
+              "threeDResult": "Y",
+              "txnTime": "2019-01-21T16:28:17.735Z",
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardBin": "411111",
+                "lastDigits": "1111",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
+              "threeDSecureVersion": "2.1.0"
+             }
+
++ Request Authentication - Browser flow with issuer challenge (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
         
     + Body
 
@@ -1606,8 +1779,8 @@ Click on **Authentications** above to see an example of an Authentication reques
                   "isAirTravel": true,
                   "airlineCarrier": "Wizz air",
                   "departureDate": "2014-01-26",
-                  "destination": "Bulgaria",
-                  "origin": "China",
+                  "destination": "SOF",
+                  "origin": "BCN",
                   "passengerFirstName": "John",
                   "passengerLastName": "Smith"
                 },
@@ -1629,7 +1802,7 @@ Click on **Authentications** above to see an example of an Authentication reques
                 "timezoneOffset": 240,
                 "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
               }
-            }            
+            }
             
 + Response 200 (application/json)
 
@@ -1638,12 +1811,7 @@ Click on **Authentications** above to see an example of an Authentication reques
             {
               "id": "123e4567-e89b-12d3-a456-4266554456745",
               "acsUrl": "https://www.acs.com",
-              "cavv": "BwAQATkhGAEAABVIFSEYEGkybeU=",
-              "xid": "MTU0ODE1MjExNDYzMXBVY1ZqU3k=",
-              "eci": 5,
-              "status": "COMPLETED",
-              "threeDEnrollment": "Y",
-              "threeDResult": "Y",
+              "status": "PENDING",
               "txnTime": "2019-01-21T16:28:17.735Z",
               "amount": 123,
               "currency": "EUR",
@@ -1683,7 +1851,181 @@ Click on **Authentications** above to see an example of an Authentication reques
               "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
               "threeDSecureVersion": "2.1.0",
               "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
-             "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+              "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+             }
+
++ Request Authentication - Browser flow with fallback to 1.0 (application/json)
+
+    + Headers
+            
+            Authorization: Basic YOUR-BASE64-ENCODED-API-KEY
+        
+    + Body
+
+            {
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardNum": "4111111111111111",
+                "paymentToken": "SCrkVsiwgvcykjLA",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+              "deviceChannel": "BROWSER",
+              "requestorChallengePreference": "NO_PREFERENCE",
+              "messageCategory": "PAYMENT",
+              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+              "authenticationPurpose": "PAYMENT_TRANSACTION",
+              "maxAuthorizationsForInstalmentPayment": 2,
+              "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+              "billingcycle": {
+                "endDate": "2014-01-26",
+                "frequency": 1
+              },
+              "orderItemDetails": {
+                "preOrderItemAvailabilityDate": "2014-01-26",
+                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+              },
+              "purchasedGiftCardDetails": {
+                "amount": 1234,
+                "count": 2,
+                "currency": "USD"
+              },
+              "userAccountDetails": {
+                "addCardAttemptsForLastDay": 1,
+                "changedDate": "2014-01-26",
+                "changedRange": "DURING_TRANSACTION",
+                "createdDate": "2014-01-26",
+                "createdRange": "NO_ACCOUNT",
+                "passwordChangedDate": "2014-01-26",
+                "passwordChangedRange": "NO_CHANGE",
+                "paymentAccountDetails": {
+                  "createdRange": "NO_ACCOUNT",
+                  "createdDate": "2014-01-26"
+                },
+                "priorThreeDSAuthentication": {
+                  "data": "Some up to 2048 bytes undefined data",
+                  "method": "FRICTIONLESS_AUTHENTICATION",
+                  "id": "123e4567-e89b-12d3-a456-426655440000",
+                  "time": "2014-01-26T10:32:28Z"
+                },
+                "shippingDetailsUsage": {
+                  "cardHolderNameMatch": true,
+                  "initialUsageDate": "2014-01-26",
+                  "initialUsageRange": "CURRENT_TRANSACTION"
+                },
+                "suspiciousAccountActivity": true,
+                "totalPurchasesSixMonthCount": 1,
+                "transactionCountForPreviousDay": 1,
+                "transactionCountForPreviousYear": 3,
+                "travelDetails": {
+                  "isAirTravel": true,
+                  "airlineCarrier": "Wizz air",
+                  "departureDate": "2014-01-26",
+                  "destination": "SOF",
+                  "origin": "BCN",
+                  "passengerFirstName": "John",
+                  "passengerLastName": "Smith"
+                },
+                "userLogin": {
+                  "authenticationMethod": "NO_LOGIN",
+                  "data": "Some up to 2048 bytes undefined data",
+                  "time": "2014-01-26T10:32:28Z"
+                }
+              },
+              "browserDetails": {
+                "acceptHeader": "*/*",
+                "colorDepthBits": "24",
+                "customerIp": "207.48.141.20",
+                "javascriptEnabled": true,
+                "javaEnabled": true,
+                "language": "en-US",
+                "screenHeight": 768,
+                "screenWidth": 1024,
+                "timezoneOffset": 240,
+                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+              }
+            }
+            
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "id": "123e4567-e89b-12d3-a456-4266554456745",
+              "acsUrl": "https://www.acs.com",
+              "xid": "MTU0ODE1MjExNDYzMXBVY1ZqU3k=",
+              "status": "PENDING",
+              "threeDEnrollment": "Y",
+              "txnTime": "2019-01-21T16:28:17.735Z",
+              "amount": 123,
+              "currency": "EUR",
+              "merchantRefNum": "Ref-1234",
+              "merchantUrl": "https://mysite.com",
+              "card": {
+                "cardExpiry": {
+                  "month": 12,
+                  "year": 2019
+                },
+                "cardBin": "411111",
+                "lastDigits": "1111",
+                "holderName": "John Smith"
+              },
+              "billingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987"
+              },
+              "shippingDetails": {
+                "city": "New York",
+                "country": "US",
+                "state": "AL",
+                "street": "My street 1",
+                "street2": "My street 2",
+                "zip": "CHY987",
+                "shipMethod": "S"
+              },
+              "profile": {
+                "cellPhone": "+154657854697",
+                "email": "example@example.com",
+                "phone": "+154657854697"
+              },
+              "threeDSecureVersion": "1.1.0",
+              "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
+              "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
              }
             
 ## Get Authentication [GET /v2/accounts/{account_id}/authentications/{authentication_id}]
