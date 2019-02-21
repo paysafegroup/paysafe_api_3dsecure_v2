@@ -131,10 +131,11 @@ The SDK is located here: `https://hosted.paysafe.com/threedsecure/js/x.y.z/paysa
 
 You need to include it in your HTML form by adding a `<script>` element in either the header or body.
 
+```apib
 <head>
     <script src="https://hosted.paysafe.com/threedsecure/js/x.y.z/paysafe.threedsecure.min.js"></script>
 </head>
-
+```
 
 <a name="startfunction" title="Start Function"></a>
 ## Start Function
@@ -149,7 +150,7 @@ The function signature is as follows:
 |---                        |---                                |---    |
 |apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
 |startOptions               |[object](#startoptions)            |This is used to handle device fingerprinting.   |
-|TdsCallback                |function                           |   |
+|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _start_ function.   |
 
 <a name="challengefunction" title="Challenge Function"></a>
 ## Challenge Function
@@ -164,24 +165,38 @@ The function signature is as follows:
 |---                        |---                                |---    |
 |apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
 |ChallengeOptions           |[object](#challengeoptions)        |This is used to handle the challenge flow.   |
-|TdsCallback                |function                           |   |
+|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _challenge_ function.   |
+
+<a name="callbackfunction" title="Callback Function"></a>
+## Callback Function
+
+The callback function is invoked to complete the _start_ or _challenge_ function.
+
+The function signature is as follows:
+
+`callback(id, error)`
+
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|id                         |string                             |This is the ID.|
+|error                      |[error](#javascriptsdkerrorcode)   |This is the error code.   |
 
 <a name="startoptions" title="Start Options"></a>
 ## Start Options
 
 |Element                    |Type                               |Description |
 |---                        |---                                |---    |
-|accountID                  |string                             |This is|
+|accountID                  |string                             |This is the merchant account ID.|
 |card                       |[object](#cardobject)              |These are the details of the card used for the request.|
-|environment                |string                             |   |
+|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.|
 
 <a name="challengeoptions" title="Challenge Options"></a>
 ## Challenge Options
 
-|Element                    |Type       |Description |
-|---                        |---        |---    |
-|sdkChallengePayload        |string<br/>`length<=9999`     |This is a payload that should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required. |
-|environment                |string     |   |
+|Element                    |Type                               |Description |
+|---                        |---                                |---    |
+|sdkChallengePayload        |string<br/>`length<=9999`          |This is a payload that should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required. |
+|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.   |
 
 <a name="usingtheapi" title="Using The API"></a>
 # Using the API
@@ -279,8 +294,6 @@ The following request type is supported:
 |---                                                |---                                                |---    |
 |/authentications                                   |Authenticate a card with 3D Secure                 |POST   |
 |/authentications/{authentication_id}               |Look up an Authentication request                  |GET    |
-
-
 
 <!---# Getting Started
 
@@ -1455,6 +1468,18 @@ When providing card information, merchants can provide either card details or a 
 |401                    |5280           |The required authentication credentials were not provided.|
 |405                    |5281           |The request uses an action (e.g., GET, POST, or PUT) that is not supported by the resource.|
 |400                    |5502           |Either the payment token is invalid or the corresponding profile or bank account is not active.|
+
+<a name="javascriptsdkerrorcode" title="JavaScript SDK Error Code"></a>
+## JavaScript SDK Error Codes
+
+|Error Code                 |Description|
+|---                        |---|
+|9004                       |Callback should be a function. |
+|9012                       |Invalid number of arguments. |
+|9013                       |Invalid apiKey parameter. |
+|9014                       |An unhandled error occured. |
+|9015                       |Invalid options argument. |
+|9500                       |Invalid option fields: ${fields}. |
 
 # Using the example API calls (Console Window)
 To configure and test the API examples, first click on one of the API calls in the API Reference section and then click **Switch to Console** in the right-hand pane. 
