@@ -30,7 +30,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned by the JavaScript SDK.
 
-- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_ parameters along with the _authenticationId_. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
+- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_ parameters along with the _authenticationId_. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
 
 **Challenge Flow**
 
@@ -40,7 +40,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - Once the challenge is complete, the merchant receives a callback from the SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.
 
 **Card API Authorization Request**
 
@@ -449,7 +449,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
 
-1. Paysafe links the authentication to the customer's card and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+1. Paysafe links the authentication to the customer's card and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.
 
 1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the above values along with the original card details.
 
