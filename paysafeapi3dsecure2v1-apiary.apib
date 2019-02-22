@@ -481,7 +481,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 1. Once the challenge is complete, the merchant receives a callback from the SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether or not to proceed with the Authorization request. 
+1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request. 
 
 1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
 
