@@ -13,12 +13,12 @@ HOST: https://api.test.paysafe.com/threedsecure/
 
 Paysafe 3DS 2.0 offers speed and security by allowing card issuers to authenticate cardholders using contextual data, only requiring additional customer verification for a small percentage of high-risk transactions. This process allows for faster consumer checkout while also adhering to the strong customer authentication (SCA) requirements. 
 
-**Note:** Paysafe is compliant to 3D Secure version 2.1.0. 3D Secure is currently supported for Visa and Mastercard brands only. Contact your account manager for more information.
+**Note:** Paysafe is compliant to 3D Secure version 2.1.0. 3D Secure is currently supported for Visa, American Express, and Mastercard brands only. Contact your account manager for more information.
 
 An overview of the steps in a browser-based 3D Secure cardholder authentication are shown below. For a detailed description of individual scenarios, click [here](#usingtheapi).
 <!---For a detailed description, see the [Introduction to 3D Secure](https://developer.paysafe.com/en/rest-apis/3ds/getting-started/introduction-to-3d-secure/).--->
 
-![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2APIBrowserOverview.png)
+![](https://github.com/paysafegroup/paysafe_api_3dsecure_v2/raw/master/images/3DS2APIBrowserOverview.png)
 
 **Setup and Device Collection**
 
@@ -30,7 +30,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned by the JavaScript SDK.
 
-- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_ parameters along with the _authenticationId_. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
+- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_ parameters along with the _authenticationId_. If _status_=COMPLETED, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
 
 **Challenge Flow**
 
@@ -38,9 +38,9 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
-- Once the challenge is complete, the JavaScript SDK stores the 3DS Authentication result fields in the Paysafe 3DS 2.0 API and notifies the merchant.
+- Once the challenge is complete, the merchant recieves a callback from the SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
+- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
 
 **Card API Authorization Request**
 
@@ -48,8 +48,8 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authorized, fraud liability is typically shifted from the merchant to the bank.
 
-<a name="apikey" title="Authentication"></a>
-# Authentication
+<a name="apikey" title="API Key"></a>
+# API Key
 
 In order for you to use the Paysafe REST API, Paysafe must first set you up on their system and provide you with an API key. Your API key looks something like this:
 
@@ -137,40 +137,107 @@ You need to include it in your HTML form by adding a `<script>` element in eithe
 </head>
 ```
 
-<a name="startfunction" title="Start Function"></a>
+<a name="start" title="Start"></a>
 ## Start Function
 
-The start function initiates the authentication process. This function handles the device fingerprinting and returns the _deviceFingerprintingId_ parameter used for the Authentication request.
+The _start_ function initializes the device fingerprinting procedure for a customer. 
 
 The function signature is as follows:
 
-`start(apiKey, StartOptions, TdsCallback)`
+`paysafe.threedsecure.start(apikey,options,callback);`
 
-|Element                    |Type                               |Description |
-|---                        |---                                |---    |
-|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
-|StartOptions               |[object](#startoptions)            |This is used to handle device fingerprinting.   |
-|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _start_ function.   |
+|Element                    |Type                               |Required |Description |
+|---                        |---                                |---      |---    |
+|apiKey                     |string                             |Yes      |This is the Base64-encoded version of the single-use API key. |
+|options                    |[object](#optionsobject)           |Yes      |This is an object that contains the account ID, the environment, and a card object containing the Bank Identification Number (BIN).|
+|callback                   |[function](#callbackfunction)      |Yes      |This is a function that will either return the _deviceFingerprintingId_ or an error code.|
 
-<a name="challengefunction" title="Challenge Function"></a>
-## Challenge Function
 
-The challenge function handles the challenge flow if the card issuer requires additional customer verification (_status_=PENDING, _threeDResult_=C).
+<a name="optionsobject" title="Options Object"></a>
+## Start Options Object
 
-The function signature is as follows:
+The options object contains three main sections: [environment](#startenvironment), [accountId](#startaccountid) and card, described below.
 
-`challenge(apiKey, ChallengeOptions, TdsCallback)`
+<a name="optionsmatrix" title="Options Matrix"></a>
+### Options Matrix
+|Element                    |Type                             |Required  |Description |
+|---                        |---                              |---       |---    |
+|environment                |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are<br><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|accountId                  |string</br>`length<=20`          |Yes       |This is the account ID that will be used for the transaction.|
+|card.cardBin               |string</br>`length=6-8`          |Yes       |This is an element of the _card_ object. This is the BIN of the card used for the transaction.|
 
-|Element                    |Type                               |Description |
-|---                        |---                                |---    |
-|apiKey                     |string                             |This is your Base64-encoded API key, available in the Business Portal.|
-|ChallengeOptions           |[object](#challengeoptions)        |This is used to handle the challenge flow.   |
-|TdsCallback                |[function](#callbackfunction)      |This is invoked to complete the _challenge_ function.   |
+<a name="startenvironment" title="Start Environment"></a>
+### environment
 
-<a name="callbackfunction" title="Callback Function"></a>
-## Callback Function
+The environment string selects the environment to use for device fingerprinting. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
 
-The callback function is invoked to complete the _start_ or _challenge_ function.
+**TEST**
+```apib
+paysafe.threedsecure.start("my Base64 encoded single-use API key", {
+    environment: "TEST",
+    accountId: "Prefered account ID",
+    card: {
+        cardBin: "The card BIN"
+    }
+}, function(deviceFingerprintingId, error) {
+    ...
+});
+```
+
+**LIVE**
+```apib
+paysafe.threedsecure.start("my Base64 encoded single-use API key", {
+    environment: "LIVE",
+    accountId: "Prefered account ID",
+    card: {
+        cardBin: "The card BIN"
+    }
+}, function(deviceFingerprintingId, error) {
+    ...
+});
+```
+
+**Default**
+```apib
+paysafe.threedsecure.start("my Base64 encoded single-use API key", {
+    accountId: "Prefered account ID",
+    card: {
+        cardBin: "The card BIN"
+    }
+}, function(deviceFingerprintingId, error) {
+    ...
+});
+```
+
+<a name="startaccountid" title="Start Account ID"></a>
+### accountID
+
+This is the account ID that will be used for the transaction.
+
+**TEST**
+```apib
+paysafe.threedsecure.start("my Base64 encoded single-use API key", {
+        accountId: "Prefered account ID",
+ 
+        card: {
+            cardBin:"The card BIN"
+        }
+    }, function (deviceFingerprintingId, error) {...});
+```
+<a name="startcard" title="Start Card"></a>
+### card
+
+The card object contains the required card information (card BIN) to process the device fingerprinting operation.
+
+|Element                    |Type                             |Required     |Description |
+|---                        |---                              |---          |---    |
+|cardBin                    |string</br>`length=6-8`          |Yes          |This is the card Bank Identification Number (BIN). This is typically the first 6 or 8 digits of the card. |
+
+
+<a name="startcallbackfunction" title="Start Callback Function"></a>
+## Start Callback Function
+
+The callback function is invoked to handle errors or notify the caller with the device fingerprinting ID.
 
 The function signature is as follows:
 
@@ -181,22 +248,20 @@ The function signature is as follows:
 |id                         |string                             |This is the ID.|
 |error                      |[error](#javascriptsdkerrorcode)   |This is the error code.   |
 
-<a name="startoptions" title="Start Options"></a>
-## StartOptions
+<a name="challenge" title="Challenge"></a>
+## Challenge
 
-|Element                    |Type                               |Description |
-|---                        |---                                |---    |
-|accountID                  |string                             |This is the merchant account ID.|
-|card                       |[object](#cardobject)              |These are the details of the card used for the request.|
-|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.|
+The _challenge_ function handles the 3DS 2.0 challenge flow. This function has the following parameters:
+- **apiKey** - This is the Base64-encoded version of the single-use API key. 
+- **options** - This is an object that contains the Base64-encoded SDK challenge payload returned by the call to the ``/authentications`` endpoint and specifies the environment to use.
+- **callback** - This is a function that will either return the _authenticationId_ (which will be used to look up the results) or an error code.
 
-<a name="challengeoptions" title="Challenge Options"></a>
-## ChallengeOptions
+The function signature is as follows:
 
-|Element                    |Type                               |Description |
-|---                        |---                                |---    |
-|sdkChallengePayload        |string<br/>`length<=9999`          |This is a payload that should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required. |
-|environment                |string                             |Possible values: LIVE or TEST. The environment to be used for making the API calls. Default value is LIVE, if not specified.   |
+`paysafe.threedsecure.challenge(apikey,options,callback);`
+
+
+
 
 <a name="usingtheapi" title="Using The API"></a>
 # Using the API
@@ -215,7 +280,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 **API to use:** 3D Secure 2.0 API + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
 
-![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserFrictionless.png)
+![](https://github.com/paysafegroup/paysafe_api_3dsecure_v2/raw/master/images/3DS2ScenarioBrowserFrictionless.png)
 
 1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS 2.0 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
@@ -227,7 +292,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
 
-1. Paysafe links the authentication to the customer's card and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
+1. Paysafe links the authentication to the customer's card and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETED, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request.
 
 1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the above values along with the original card details.
 
@@ -239,7 +304,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 **API to use:** 3D Secure 2.0 API + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
 
-![](https://developer.paysafe.com/fileadmin/images/Apiary/3DS2ScenarioBrowserChallenge.png)
+![](https://github.com/paysafegroup/paysafe_api_3dsecure_v2/raw/master/images/3DS2ScenarioBrowserChallenge.png)
 
 1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token) API key and the [card BIN](#cardobject). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
@@ -259,7 +324,7 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 1. Once the challenge is complete, the JavaScript SDK stores the 3DS Authentication result fields in the Paysafe 3DS 2.0 API and notifies the merchant.
 
-1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETE, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. 
+1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the cardholder has been successfully authenticated and the merchant can proceed with the Authorization request. 
 
 1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
 
@@ -1008,7 +1073,7 @@ When providing card information, merchants can provide either card details or a 
 |cardNum            |string<br/>`length=8-20`           |This is the card number used for the request. |
 |cardBin            |string<br/>`length<=6`             |This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card. |
 |cardExpiry         |[object](#cardexpiryobject)        |This is the card's expiry date.|
-|type               |enum                               |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>MC &ndash; Mastercard</li><li>VI &ndash; Visa</li></ul>
+|type               |enum                               |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>MC &ndash; Mastercard</li><li>VI &ndash; Visa</li></ul>
 |lastDigits         |string<br/>`length=4`              |This is the last four digits of the card used for the request.|
 
 
@@ -2317,6 +2382,7 @@ This is how you look up an Authentication.
         + `type`:`VI` (enum) - This is the type of card used for the request.
             _Read Only_
             + Members
+                + `AM`
                 + `MC`
                 + `VI`        
         + `lastDigits`:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.
