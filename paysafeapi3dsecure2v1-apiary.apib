@@ -960,29 +960,6 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 | Zambia                            | ZM |
 | Zimbabwe                          | ZW |
 
-<a name="languagecodes" title="Language Codes"></a>
-## Language Codes
-
-| Locale                    | Code  |
-|---------------------------|-------|
-| Danish                    | da_DK |
-| German                    | de_DE |
-| Greek                     | el_GR |
-| English (US)              | en_US |
-| English (United Kingdom)  | en_GB |
-| Spanish                   | es_ES |
-| French (Canada)           | fr_CA |
-| Italian                   | it_IT |
-| Japanese                  | ja_JP |
-| Korean                    | ko_KR |
-| Norwegian                 | no_NO |
-| Polish                    | pl_PL |
-| Portuguese                | pt_PT |
-| Russian                   | ru_RU |
-| Swedish                   | sv_SE |
-| Turkish                   | tr_TR |
-| Simplified Chinese        | zh_CN |
-
 # Common and Complex JSON Objects
 
 <a name="authenticationobject" title="Authentication Object"></a>
@@ -1039,7 +1016,6 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
       "year": 2019
     },
     "cardNum": "4111111111111111",
-    "paymentToken": "SCrkVsiwgvcykjLA",
     "holderName": "John Smith"
   },
   "billingDetails": {
@@ -1263,25 +1239,6 @@ When providing card information, merchants can provide either card details or a 
     }
 ```
 
-<a name="dateofbirthobject" title="Date of Birth Object"></a>
-## dateOfBirth
-
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|day                     |number<br/>`length=2`  |This is the day of the customer's date of birth. |
-|month                   |number<br/>`length=2`  |This is the month of the customer's date of birth. |
-|year                    |number<br/>`length=4`  |This is the year of the customer's date of birth.|
-
-```apib
-    {
-    "dateOfBirth":{
-        "day":"29",
-        "month": "12",
-        "year": "1989"
-    }
-    }
-```
-
 <a name="electronicdeliveryobject" title="Electronic Delivery Object"></a>
 ## electronicDelivery
 
@@ -1311,76 +1268,6 @@ When providing card information, merchants can provide either card details or a 
       "message":"The credentials provided with the request do not have permission to access the data requested."
    }
    }
-```
-
-<a name="expirydateobject" title="Expiry Date Object"></a>
-## expiryDate
-
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|day                     |number<br/>`length=2`  |This is the day when the document will expire. |
-|month                   |number<br/>`length=2`  |This is the month when the document will expire. |
-|year                    |number<br/>`length=4`  |This is the year when the document will expire.|
-
-```apib
-    {
-    "expiryDate":{
-        "day":"29",
-        "month": "12",
-        "year": "1989"
-    }
-    }
-```
-
-<a name="identitydocumentsobject" title="Identity Documents Object"></a>
-## identityDocuments
-
-| Element                  | Type                       | Description                                                                                                          |
-|--------------------------|----------------------------|----------------------------------------------------------------------------------------------------------------------|
-| type                     | enum                       | This is the type of identification document. Possible values vary for individuals and companies.</br><p>For individuals:</p></br><ul><li>PASSPORT</li><li>IDENTITY_CARD</li><li>DRIVING_LICENSE</li><li>SOCIAL_SECURITY</li><li>NATIONAL_IDENTITY</li><li>TAX_IDENTIFICATION</li></ul></br><p>For companies:</p></br><ul><li>REGISTRATION_ID</li><li>ACRA</li><li>LICENSE_NUMBER</li><li>REGISTRATION_NUMBER</li></ul>|
-| documentNumber           | string<br/>`length<=50`    | This is the unique document identification number.                                                                   |
-| issuingCountry           | string<br/>`length=2`      | This is the country that issued the government ID. In the USA, this would be US.                                     |
-| issuingCountrySubdvision | string<br/>`length=2`      | This is the country subdivision that issued the government ID. In the USA, this would be the appropriate state code. |
-| issueDate                | [object](#issuedateobject) | This is the issue date of the document.                                                                              |
-| expiryDate               | [object](#expirydateobject)| This is the expiration date of the document.                                                                         |
-
-```apib
-{
-    "identityDocuments": [{
-        "type": "DRIVING_LICENSE",
-        "documentNumber": "1234567890",
-        "issuingCountry": "CA",
-        "issueDate": {
-            "year": 2017,
-            "month": 12,
-            "day": 25
-        }
-        "expiryDate": {
-            "year": 2027,
-            "month": 12,
-            "day": 25
-        }
-        }]
-}
-```
-
-<a name="issuedateobject" title="Issue Date Object"></a>
-## issueDate
-
-|Element                 |Type                   |Description|
-|---                     |---                    |---|
-|day                     |number<br/>`length=2`  |This is the day when the document was issued. |
-|month                   |number<br/>`length=2`  |This is the month when the document was issued. |
-|year                    |number<br/>`length=4`  |This is the year when the document was issued.|
-
-```apib
-    {
-    "issueDate":{
-        "day":"29",
-        "month": "12",
-        "year": "1989"
-    }
-    }
 ```
 
 <a name="orderitemdetailsobject" title="Order Item Details Object"></a>
@@ -1441,39 +1328,16 @@ When providing card information, merchants can provide either card details or a 
 
 | Element           | Type                                          | Description |
 |-------------------|-----------------------------------------------|-------------------------------------------------------------------------------------|
-| title             | string                                        | This is the title of the customer.|
-| firstName         | string</br>`length<=80`                       | This is the first name of the customer.|
-| lastName          | string</br>`length<=80`                       | This is the last name of the customer.|
-| email             | string</br>`length<=255`                      | This is the email address of the customer.|
-| dateOfBirth       | [object](#dateofbirthobject)                  | This is the customer's date of birth.|
-| gender            | enum                                          | This is the specified gender of the customer. Possible values are:<br/><ul><li>M – Male</li><li>F – Female</li><li>O – Other</li><li>N – Not Specified</li></ul>|
-| identityDocuments | [array of objects](#identitydocumentsobject)  | This is an array of consumer identity documents. |
-| kycStatus         | enum                                          | This is the KYC status of the consumer at the merchant. Possible values are:<br/><ul><li>UNVERIFIED – Consumer details are not verified.</li><li>PARTIALLY_VERIFIED – Some consumer details are verified, e.g., name and date of birth.</li><li>VERIFIED – Consumer is fully verified, i.e., name, date of birth, address, phone number, and email.</li></ul>|
-| phone             | string</br>`length<=40`                       | This is the customer's primary phone.|
 | cellphone         | string</br>`length<=40`                       | This is the customer's cell phone.|
-| locale            | string</br>`length=2`                         | This is the ISO language code representing the preferred language for this profile. |
+| email             | string</br>`length<=255`                      | This is the email address of the customer.|
+| phone             | string</br>`length<=40`                       | This is the customer's primary phone.|
 
 ```apib
 {
-    "title": "Mr",
-    "firstName": "John",
-    "lastName": "Smith",
-    "email": "jsmith@email.com",
-    "dateOfBirth": {
-        "day": "31",
-        "month": "10",
-        "year": "1995"
-    },
-    "identityDocuments": [{
-        "type": "DRIVING_LICENSE",
-        "idNumber": "1234567890"
-    }],
-    "gender": "M",
-    "kycStatus": "VERIFIED",
-    "phone": "14032221234",
-    "cellphone": "14033332345",
-    "locale": "en"
-}
+    "cellPhone": "+154657854697",
+    "email": "example@example.com",
+    "phone": "+154657854697"
+  },
 ```
 
 <a name="purchasedgiftcarddetailsobject" title="Purchased Gift Card Details Object"></a>
@@ -1777,7 +1641,6 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                   "year": 2019
                 },
                 "cardNum": "4111111111111111",
-                "paymentToken": "SCrkVsiwgvcykjLA",
                 "holderName": "John Smith"
               },
               "billingDetails": {
@@ -1950,7 +1813,6 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                   "year": 2019
                 },
                 "cardNum": "4111111111111111",
-                "paymentToken": "SCrkVsiwgvcykjLA",
                 "holderName": "John Smith"
               },
               "billingDetails": {
@@ -2062,6 +1924,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "id": "123e4567-e89b-12d3-a456-4266554456745",
               "acsUrl": "https://www.acs.com",
               "status": "PENDING",
+              "threeDResult": "C",
               "txnTime": "2019-01-21T16:28:17.735Z",
               "amount": 123,
               "currency": "EUR",
@@ -2123,7 +1986,6 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                   "year": 2019
                 },
                 "cardNum": "4111111111111111",
-                "paymentToken": "SCrkVsiwgvcykjLA",
                 "holderName": "John Smith"
               },
               "billingDetails": {
@@ -2558,19 +2420,6 @@ This is how you look up an Authentication.
         + `year`:2020 (string, required) - This is the year the card expires.
             _length=4_
 
-## Date of Birth
-
-+ `dateOfBirth` (object) - This is the date of birth of the customer associated to the this profile. 
-
-    + Properties
-    
-        + `day`:`29` (number) - This is the 2-digit day of birth of the customer associated to the this profile.
-            _length=2_
-        + `month`:`12` (number) - This is the 2-digit month of birth of the customer associated to the this profile.
-            _length=2_
-        + `year`:`2020` (number) - This is the 4-digit year of birth of the customer associated to the this profile.
-            _length=4_
-
 ## Electronic Delivery
 
 + `electronicDelivery` (object) - This is the electronic delivery information.
@@ -2590,47 +2439,6 @@ This is how you look up an Authentication.
     
         + `code`:`1000` (string) - This is the error code.
         + `message`:`Internal Error` (string) - This is a description of the error.
-
-## Expiry Date
-
-+ `expiryDate` (object) - This is the expiration date of the document.
-
-    + Properties
-    
-        + `day`:`29` (number) - This is the day when the document will expire.
-            _length=2_
-        + `month`:`12` (number) - This is the month when the document will expire.
-            _length=2_
-        + `year`:`2020` (number) - This is the year when the document will expire.
-            _length=4_
-
-## Identity Documents
-
-+ `identityDocuments` (object) - This is an array of documents and customer information.
-
-    + Properties
-        + Include Type
-        + `documentNumber`:`1234567890` (string, required) - This is the unique document identification number.
-          _length<=50_        
-        + `issuingCountry`:`US` (string) - This is the country that issued the government ID. In the USA, this would be US.
-          _length=2_
-        + `issuingCountrySubdvision`:`IL` (string) - This is the country subdivision that issued the government ID. In the USA, this would be the appropriate state code.
-          _length=2_          
-        + Include Issue Date
-        + Include Expiry Date
-
-## Issue Date
-
-+ `issueDate` (object) - This is the issue date of the document.
-
-    + Properties
-    
-        + `day`:`29` (number) - This is the day when the document was issued.
-            _length=2_
-        + `month`:`12` (number) - This is the month when the document was issued.
-            _length=2_
-        + `year`:`2018` (number) - This is the year when the document was issued.
-            _length=4_
 
 ## Order Item Details
 
@@ -2704,36 +2512,12 @@ This is how you look up an Authentication.
 
     + Properties
     
-        + `title`:`Mr.` (string) - This is the title of the customer.
-        + `firstName`:`John` (string) - This is the first name of the customer.
-            _length<=80_
-        + `lastName`:`Smith` (string) - This is the last name of the customer.
-            _length<=80_
         + `email`:`jsmith@email.com` (string) - This is the email address of the customer.
             _length<=255_
-        + Include Date of Birth
-        + `gender`:`M` (enum) - This is the specified gender of the customer.
-        
-            + Members
-                + `M – Male`
-                + `F – Female`
-                + `O – Other`
-                + `N – Not Specified`
-                
-        + Include Identity Documents 
-        + `kycStatus`:`VERIFIED` (enum) - This is the KYC status of the consumer at the merchant.
-        
-            + Members
-                + `UNVERIFIED`
-                + `PARTIALLY_VERIFIED`
-                + `VERIFIED`
-                
         + `phone`:`5555555555` (string) - This is the customer's primary phone.
             _length<=40_
         + `cellphone`:`5141234567` (string) - This is the customer's cell phone.
             _length<=40_
-        + `locale`:`en` (string) - This is the ISO language code representing the preferred language for this profile.
-            _length=2_
             
 ## Purchased Gift Card Details
 
@@ -2832,26 +2616,6 @@ This is how you look up an Authentication.
         + `passengerLastName`:`Smith` (string) - This is the last name of the cardholder from the billing details.
           _length<=99_  
 
-## Type
-
-+ One of
-
-    + type (enum, required) - This is the type of identification document for _individuals_. Only one **type** element can be included in the request.
-        + Members
-            + `PASSPORT`
-            + `IDENTITY_CARD`
-            + `DRIVING_LICENSE`
-            + `SOCIAL_SECURITY`
-            + `NATIONAL_IDENTITY`
-            + `TAX_IDENTIFICATION`    
-                
-    + type (enum, required) - This is the type of identification document for _companies_. Only one **type** element can be included in the request.
-        + Members
-            + `REGISTRATION_ID`
-            + `ACRA`
-            + `LICENSE_NUMBER`
-            + `REGISTRATION_NUMBER`
-            
 ## User Account Details
 
 + `userAccountDetails` (object) - These are the user account details from the merchant website.
