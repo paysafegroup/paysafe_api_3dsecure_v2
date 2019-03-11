@@ -318,13 +318,13 @@ The _options_ object contains two main sections: [environment](#challengeenviron
 ### options
 |Element                                                    |Type                             |Required  |Description |
 |---                                                        |---                              |---       |---    |
-|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use to handle the challenge. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
 |[sdkChallengePayload](#challengesdkchallengepayload)       |string<br/>`length<=9999`        |Yes       |This is the Base64-encoded SDK challenge payload returned by the call to the ``/authentications`` endpoint.|
 
 <a name="challengeenvironment" title="Challenge Environment"></a>
 ### environment
 
-The _environment_ string selects the environment to use for device fingerprinting. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
+The _environment_ string selects the environment to use to handle the challenge. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
 
 **TEST**
 ```apib
@@ -364,7 +364,7 @@ paysafe.threedsecure.challenge("my Base64 encoded single-use-token API key", {
 <a name="challengecallbackfunction" title="Challenge Callback Function"></a>
 ## Challenge Callback Function
 
-The _callback_ function is invoked to handle errors or notify the caller with the device fingerprinting ID.
+The _callback_ function is invoked to handle errors or notify the caller with the authentication ID.
 
 |Element                    |Type                                   |Required             |Description |
 |---                        |---                                    |---                  |---    |
