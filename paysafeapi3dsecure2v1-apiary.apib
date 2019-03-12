@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: https://api.test.paysafe.com/threedsecure/
 
-# Paysafe 3D Secure Version 2.0 API - DRAFT
+# Paysafe 3D Secure Version 2.0 API
 
 # Release Notes
 
@@ -162,8 +162,8 @@ The _options_ object contains three main sections: [environment](#startenvironme
 ### options
 |Element                            |Type                             |Required  |Description |
 |---                                |---                              |---       |---    |
-|[environment](#startenvironment)   |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
-|[accountId](#startaccountid)       |string</br>`length<=20`          |Yes       |This is the account ID that will be used for the transaction.|
+|[environment](#startenvironment)   |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|[accountId](#startaccountid)       |string<br/>`length<=20`          |Yes       |This is the account ID that will be used for the transaction.|
 |[card](#startcard)                 |object                           |Yes       |This object contains the card bank identification number (BIN) required for the device fingerprinting operation.|
 
 <a name="startenvironment" title="Start Environment"></a>
@@ -231,7 +231,7 @@ The _card_ object contains the required card information (card BIN) to process t
 
 |Element                    |Type                             |Required     |Description |
 |---                        |---                              |---          |---    |
-|cardBin                    |string</br>`length=6-8`          |Yes          |This is the card Bank Identification Number (BIN). This is typically the first 6 or 8 digits of the card. |
+|cardBin                    |string<br/>`length=6-8`          |Yes          |This is the card Bank Identification Number (BIN). This is typically the first 6 or 8 digits of the card. |
 
 
 <a name="startcallbackfunction" title="Start Callback Function"></a>
@@ -318,13 +318,13 @@ The _options_ object contains two main sections: [environment](#challengeenviron
 ### options
 |Element                                                    |Type                             |Required  |Description |
 |---                                                        |---                              |---       |---    |
-|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
-|[sdkChallengePayload](#challengesdkchallengepayload)       |string</br>`length<=9999`        |Yes       |This is the Base64-encoded SDK challenge payload returned by the call to the ``/authentications`` endpoint.|
+|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use to handle the challenge. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|[sdkChallengePayload](#challengesdkchallengepayload)       |string<br/>`length<=9999`        |Yes       |This is the Base64-encoded SDK challenge payload returned by the call to the ``/authentications`` endpoint.|
 
 <a name="challengeenvironment" title="Challenge Environment"></a>
 ### environment
 
-The _environment_ string selects the environment to use for device fingerprinting. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
+The _environment_ string selects the environment to use to handle the challenge. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
 
 **TEST**
 ```apib
@@ -364,7 +364,7 @@ paysafe.threedsecure.challenge("my Base64 encoded single-use-token API key", {
 <a name="challengecallbackfunction" title="Challenge Callback Function"></a>
 ## Challenge Callback Function
 
-The _callback_ function is invoked to handle errors or notify the caller with the device fingerprinting ID.
+The _callback_ function is invoked to handle errors or notify the caller with the authentication ID.
 
 |Element                    |Type                                   |Required             |Description |
 |---                        |---                                    |---                  |---    |
@@ -1048,7 +1048,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
   "authenticationPurpose": "PAYMENT_TRANSACTION",
   "maxAuthorizationsForInstalmentPayment": 2,
   "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
-  "billingcycle": {
+  "billingCycle": {
     "endDate": "2014-01-26",
     "frequency": 1
   },
@@ -1311,7 +1311,7 @@ When providing card information, merchants can provide either card details or a 
 |---            |---                        |---|
 |data           |string<br/>`max=2048 bytes`|This field is reserved for future iterations of 3DS 2.0.|
 |method         |enum                       |This is the mechanism used previously by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>FRICTIONLESS_AUTHENTICATION</li><li>ACS_CHALLENGE</li><li>AVS_VERIFIED</li><li>OTHER_ISSUER_METHOD</li></ul>|
-|id             |string</br>`length<=36`    |This is the previous authentication ID for the cardholder.|
+|id             |string<br/>`length<=36`    |This is the previous authentication ID for the cardholder.|
 |time           |UTC formatted date         |This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.|
 
 ```apib
@@ -1328,9 +1328,9 @@ When providing card information, merchants can provide either card details or a 
 
 | Element           | Type                                          | Description |
 |-------------------|-----------------------------------------------|-------------------------------------------------------------------------------------|
-| cellphone         | string</br>`length<=40`                       | This is the customer's cell phone.|
-| email             | string</br>`length<=255`                      | This is the email address of the customer.|
-| phone             | string</br>`length<=40`                       | This is the customer's primary phone.|
+| cellPhone         | string<br/>`length<=40`                       | This is the customer's cell phone.|
+| email             | string<br/>`length<=255`                      | This is the email address of the customer.|
+| phone             | string<br/>`length<=40`                       | This is the customer's primary phone.|
 
 ```apib
 {
@@ -1447,8 +1447,8 @@ When providing card information, merchants can provide either card details or a 
 |shippingDetailsUsage            |[object](#shippingdetailsusageobject)             |This is the shipping usage information.|
 |suspiciousAccountActivity       |boolean                                           |This indicates whether the 3DS Requestor has experienced suspicious activity, including previous fraud, on the cardholder account.|
 |totalPurchasesSixMonthCount     |number<br/>`max=9999`                             |This is the total number of purchases from this cardholder account in the previous six months.|
-|transactionCountForPreviousDay  |number<br/>`max=999`                              |This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous year.|
-|transactionCountForPreviousYear |number<br/>`max=999`                              |This is the User-Agent header from the customer's browser. For example:<br/>Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.125 Safari/537.36|
+|transactionCountForPreviousDay  |number<br/>`max=999`                              |This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous 24 hours.|
+|transactionCountForPreviousYear |number<br/>`max=999`                              |This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous year.|
 |travelDetails                   |[object](#traveldetailsobject)                    |These are the Amex-specific travel details.|
 |userLogin                       |[object](#userloginobject)                        |This is the cardholder login information.|
 
@@ -1673,7 +1673,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
-              "billingcycle": {
+              "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
               },
@@ -1845,7 +1845,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
-              "billingcycle": {
+              "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
               },
@@ -2018,7 +2018,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
-              "billingcycle": {
+              "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
               },
@@ -2656,7 +2656,7 @@ This is how you look up an Authentication.
           _length<=9999_
         + `addCardAttemptsForLastDay`:`1` (number) - This is the number of Add Card attempts in the last 24 hours.
           _max=999_
-        + `transactionCountForPreviousDay`:`1` (number) - This is the total number of purchases from this cardholder account in the previous six months.
+        + `transactionCountForPreviousDay`:`1` (number) - This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous 24 year.
           _max=999_
         + `transactionCountForPreviousYear`:`3` (number) - This is the number of transactions (successful and abandoned) for this cardholder account with the 3DS Requestor across all payment accounts in the previous year.
           _max=999_
