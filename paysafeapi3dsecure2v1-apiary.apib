@@ -30,7 +30,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned by the JavaScript SDK.
 
-- Paysafe links the authentication results to the customer's card and returns a response to the merchant which contains the _status_ and _threeDResult_* parameters along with the _authenticationId_. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C* then the card issuer has challenged the authentication request and requires additional verification. <br/>*If the bank does not support 3DS 2.0, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Scenarios](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
+- Paysafe interprets the directory server response and returns a response to the merchant which contains the _status_ and _threeDResult_* parameters along with the _authenticationId_. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request. If _status_=PENDING and _threeDResult_=C* then the card issuer has challenged the authentication request and requires additional verification. <br/>*If the bank does not support 3DS 2.0, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Scenarios](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
 
 **Challenge Flow**
 
@@ -44,7 +44,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 **Card API Authorization Request**
 
-- The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
+- The merchant uses the Card Payments API to submit a payment [Authorization](https://developer.paysafe.com/en/cards/api/#/reference/0/authorizations/authorization) request, containing the 3DS 2.0 API Authentication result values along with the original card details.
 
 - Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authenticated, fraud liability is typically shifted from the merchant to the bank.
 
@@ -288,7 +288,7 @@ function callback(deviceFingerprintingId, error) {
 |---                        |---                   |---                  |---    |
 |code                       |string                |Yes                  |This is the error code.|
 |displayMessage             |string                |Yes                  |This is the error message that will be displayed.|
-|detailedMessage            |string                |Yes                  |This is a detailed description of the error.|
+|detailedMessage            |string                |No                   |This is a detailed description of the error.|
 |correlationId              |string                |No                   |This is the unique error ID that should be provided to Paysafe Support during an investigation.|
 
 ### Start Callback Errors
@@ -415,7 +415,7 @@ function callback(id, error) {
 |---                        |---                   |---                  |---    |
 |code                       |string                |Yes                  |This is the error code.|
 |displayMessage             |string                |Yes                  |This is the error message that will be displayed.|
-|detailedMessage            |string                |Yes                  |This is a detailed description of the error.|
+|detailedMessage            |string                |No                   |This is a detailed description of the error.|
 |correlationId              |string                |No                   |This is the unique error ID that should be provided to Paysafe Support during an investigation.|
 
 ### Challenge Callback Errors
@@ -461,7 +461,7 @@ See the scenarios below describing the steps in some typical 3D Secure API proce
 
 A "frictionless" authentication flow occurs when the card issuer determines that it has received enough contextual data to proceed with the authentication without requiring additional customer verification (challenge). This new flow streamlines the consumer checkout experience by reducing additional customer verification steps for low-risk transactions.
 
-This scenario illustrates a typical process where the card issuer does not challenge the request and the cardholder is successfully authenticated.
+This scenario illustrates a typical process where the card issuer does not challenge the cardholder and the cardholder is successfully authenticated.
 
 **API to use:** 3D Secure 2.0 API + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
 
@@ -557,7 +557,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 ## Currency Codes
 
 **Note:**
- * The table below lists the currencies in which transaction requests are processed, but note that they may be settled in a different currency. 
+ * The table below lists the currencies in which transaction results are processed, but note that they may be settled in a different currency. 
  * Not all currencies are supported by all banks. Contact your account manager for more information about which currencies are supported for your merchant account.
 
 |Currency |Code |
@@ -1012,7 +1012,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 | threeDSecureVersion                   | string<br/>`min=5, max=8`                 | This is the 3D secure protocol version.                                                                                                                                        |
 | directoryServerTransactionId          | string<br/>`length<=36`                   | This is the directory server transaction ID required for Mastercard.<br/>**Note:** This only exists for 3DS 2.0.                                                                   |
 | eci                                   | number<br/>`length<=2`                    | This is the Electronic Commerce Indicator code, which gets returned by the card issuer indicating whether the cardholder was successfully authenticated. Note that in some cases the *eci* value includes a leading zero, e.g., 01 or 02.<br/>**Visa, Amex, JCB, and Diners Club**<ul><li>5 &ndash; Identifies a successfully authenticated transaction.</li><li>6 &ndash; Identifies an attempted authenticated transaction.</li><li>7 &ndash; Identifies a non-authenticated transaction.</li></ul><br/>**Mastercard**<ul><li>0 &ndash; Identifies a non-authenticated transaction.</li><li>1 &ndash; Identifies an attempted authenticated transaction.</li><li>2 &ndash; Identifies a successfully authenticated transaction.</li></ul> <br/>**Note:** This only exists when no challenge is required, i.e., a frictionless authentication. |
-| cavv                                  | string<br/>`length<=28`                   | This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.<br/>**Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.|
+| cavv                                  | string<br/>`length<=2048`                 | This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.<br/>**Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.|
 | xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.|
 | sdkChallengePayload                   | string<br/>`length<=9999`                 | This is a payload that, if returned, should be passed to the _challenge_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required.|
 | transactionIntent                     | enum                                      | This identifies the type of transaction being authenticated. Possible values are:<br/><ul><li>GOODS_OR_SERVICE_PURCHASE</li><li>CHECK_ACCEPTANCE</li><li>ACCOUNT_FUNDING</li><li>QUASI_CASH_TRANSACTION</li><li>PREPAID_ACTIVATION</li></ul><br/>**Note:** This element is only required in certain markets, e.g., Brazil.                                                                                                                   |
