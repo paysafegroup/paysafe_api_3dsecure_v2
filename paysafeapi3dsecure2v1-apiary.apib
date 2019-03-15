@@ -40,7 +40,7 @@ An overview of the steps in a browser-based 3D Secure cardholder authentication 
 
 - Once the challenge is complete, the merchant receives a [callback](#challengecallbackfunction) from the JavaScript SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.
+- The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS 2.0 Authentication result fields. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.
 
 **Card API Authorization Request**
 
@@ -477,7 +477,7 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
 
-1. Paysafe interprets the directory server response and returns a response to the merchant which contains the _threeDResult_ and _status_ parameters. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.
+1. Paysafe interprets the directory server response and returns a response to the merchant which contains the _threeDResult_* and _status_ parameters. If _status_=COMPLETED, then the merchant should consult the Liability Shift matrix to determine whether to proceed with the Authorization request.<br/>*If the bank does not support 3DS 2.0, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Browser Flow with a Fallback to 3DS 1.0](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
 
 1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the above values along with the original card details.
 
@@ -501,24 +501,35 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 1. The 3DS 2.0 API communicates with the directory server and a response is returned to Paysafe.
 
-1. Paysafe interprets the directory server response and returns a response to the merchant, which contains the _threeDResult_, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.
+1. Paysafe interprets the directory server response and returns a response to the merchant, which contains the _threeDResult_*, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.<br/>*If the bank does not support 3DS 2.0, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Browser Flow with a Fallback to 3DS 1.0](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
 
 1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
 1. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
-1. Once the challenge is complete, the merchant receives a callback from the SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
+1. Once the challenge is complete, the merchant receives a [callback](#challengecallbackfunction) from the JavaScript SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS Authentication result fields. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request. 
+1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3DS 2.0 Authentication result fields. If _status_=COMPLETED, then the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request. 
 
-1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS Authentication result values along with the original card details.
+1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3DS 2.0 API Authentication result values along with the original card details.
 
 1. Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authenticated, fraud liability is typically shifted from the merchant to the bank.
 
 <a name="browserflowwithfallback" title="Browser Flow with Fallback"></a>
 ### Browser Flow with a Fallback to 3DS 1.0
 
-The Paysafe 3DS 2.0 API and 3DS JavaScript SDK are capable of supporting card issuers that have not yet transferred from 3DS 1.0. The JavaScript SDK is able to interpret the fields based on the 3DS version being used and handle the flow accordingly. This fallback is integrated seamlessly into the JavaScript SDK so you will not need to adjust the authentication flow; the steps remain the same as those for 3DS 2.0.
+The Paysafe 3DS 2.0 API and 3DS JavaScript SDK are capable of supporting card issuers that have not yet transferred from 3DS 1.0. The JavaScript SDK is able to interpret the fields based on the 3DS version being used and handle the flow accordingly. This fallback is integrated seamlessly into the JavaScript SDK so you will not need to adjust the authentication flow.
+
+There are a few parameters that are only present during the 1.0 fallback flow. They are the following:
+
+| Element                               | Type                                      | Description                                                                                                                                                                    |
+|---------------------------------------|--------                                   |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This parameter replaces _threeDResult_ in the directory server response.|
+| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.|
+
+- If the directory server response (ARes) returns _threeDEnrollment_=N or U and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+- If the directory server response (ARes) returns _threeDEnrollment_=Y and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+- If the directory server response (ARes) returns _threeDEnrollment_=Y and _status_=PENDING, then the card issuer has challenged the cardholder and the merchant should continue with the challenge flow.
 
 **API to use:** [3D Secure 2.0 API](#usingtheapi) + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
 
