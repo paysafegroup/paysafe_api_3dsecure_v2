@@ -539,7 +539,7 @@ Coming Soon!
 
 ## API Endpoints
 
-The 3D Secure API allows merchants to verify whether a credit card being used for an online transaction is registered in the 3D Secure program, and, if it is, to then use 3D Secure to authenticate that card. The REST protocol uses JSON for all requests and responses.
+The 3D Secure 2.0 API allows merchants to authenticate cardholders. The REST protocol uses JSON for all requests and responses.
 
 The following request type is supported: 
 
@@ -1033,14 +1033,14 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 | messageCategory                       | enum                                      | This is the category of the message for a specific use case. Possible values are:<br/><ul><li>PAYMENT</li><li>NON_PAYMENT</li></ul>|
 | initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase in UTC format.<br/>**Note:** This element is only required if _messageCategory_=PAYMENT, or, if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
 | requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>NO_CHALLENGE_REQUESTED</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
-| electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information.                                                                                                                                                                               |
+| electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information. <br/>**Note:** If the _electronicDelivery_ parameter is present, the _shippingDetails_ parameter will not be.                                                                                                                                                                               |
 | orderItemDetails                      | [object](#orderitemdetailsobject)         | These are the details of a previously made purchase or preorder.                                                                                                                                                                               |
 | purchasedGiftCardDetails              | [object](#purchasedgiftcarddetailsobject) | These are the details of a previously made gift card purchase.                                                                                                                                                                               |
 | billingCycle                          | [object](#billingcycleobject)             | This is the billing cycle information for recurring payments.<br/>**Note:** This object is required if _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
 | browserDetails                        | [object](#browserdetailsobject)           | These are the browser details.<br/>**Note:** This object is not required if the Paysafe SDK is used for device fingerprinting.|
 | userAccountDetails                    | [object](#useraccountdetailsobject)       | These are the user account details from the merchant website.<br/>**Note:** This element is only required if _isAirTravel_=true.|
-| billingDetails                        | [object](#billingdetailsobject)           | These are the billing details for the request.<br/>**Note:** This object is only required for the request when a payment token is _not_ provided.|
-| shippingDetails                       | [object](#shippingdetailsobject)          | This is the shipping address of the customer.                                                                                                                                                                               |
+| billingDetails                        | [object](#billingdetailsobject)           | These are the billing details for the request.|
+| shippingDetails                       | [object](#shippingdetailsobject)          | This is the shipping address of the customer.<br/>**Note:** If the _shippingDetails_ parameter is present, the _electronicDelivery_ parameter will not be.                                                                                                                            |
 | profile                               | [object](#profileobject)                  | This is the customer profile.                                                                                                                                                                               |
 
 ```apib
@@ -1394,7 +1394,7 @@ When providing card information, merchants can provide either card details or a 
 |Element            |Type                       |Description |
 |---                |---                        |---        |
 |carrier            |enum                       |This is the shipment carrier. Possible values are:<ul><li>APC &ndash; APC Overnight</li><li>APS &ndash; Anpost</li><li>CAD &ndash; Canada Postal Service</li><li>DHL &ndash; DHL</li><li>FEX &ndash; Fedex</li><li>RML &ndash; Royal Mail</li><li>UPS &ndash; United Parcel Service</li><li>USPS &ndash; United States Postal Service</li><li>CLK &ndash; CityLink</li><li>EMS &ndash; EMS (US Postal Service)</li><li>NEX &ndash; Nexworldwide</li><li>OTHER</li></ul>|
-|shipMethod         |enum                       |This is the method of shipment. Possible values are:<ul><li>N &ndash; Next Day/Overnight</li><li>T &ndash; Two-Day Service</li><li>C &ndash; Lowest Cost</li><li>O &ndash; Other</li></ul>|
+|shipMethod         |enum                       |This is the method of shipment. Possible values are:<ul><li>N &ndash; Next Day/Overnight</li><li>T &ndash; Two-Day Service</li><li>C &ndash; Lowest Cost</li><li>O &ndash; Other</li><li>S &ndash; Same Day</li></ul>|
 |recipientName      |string<br/>`length<=255`   |This is the name of the person receiving the goods.|
 |company            |string<br/>`length<=255`   |This is the company receiving the goods.|
 |street             |string<br/>`length<=50`    |This is the recipient's street address.|
@@ -1556,7 +1556,7 @@ When providing card information, merchants can provide either card details or a 
 |500                    |1007           |An internal error occurred.            |
 |500                    |1008           |An internal error occurred.            |
 |429                    |1200           |The API call has been denied as it has exceeded the permissible call rate limit.|
-|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authorized.|
+|401                    |5000           |Your merchant account authentication failed. Either your store ID/password are invalid or the IP address from which you are sending the transaction has not been authenticated.|
 |400                    |5001           |The submitted currency code is invalid or your account does not support this currency.|
 |400                    |5003           |You submitted an invalid amount with your request.|
 |400                    |5004           |You submitted an invalid account type with your request.|
@@ -1569,6 +1569,7 @@ When providing card information, merchants can provide either card details or a 
 |409                    |5031           |The transaction you have submitted has already been processed.|
 |401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
 |400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
+|404                    |5050           |The merchant configuration is missing.
 |400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
 |404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
 |403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
