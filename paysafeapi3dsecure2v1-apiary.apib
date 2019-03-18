@@ -288,19 +288,20 @@ function callback(deviceFingerprintingId, error) {
 |---                        |---                   |---                  |---    |
 |code                       |string                |Yes                  |This is the error code.|
 |displayMessage             |string                |Yes                  |This is the error message that will be displayed.|
-|detailedMessage            |string                |No                   |This is a detailed description of the error.|
+|detailedMessage            |string                |Yes                  |This is a detailed description of the error.|
 |correlationId              |string                |No                   |This is the unique error ID that should be provided to Paysafe Support during an investigation.|
 
 ### Start Callback Errors
 
 The following errors will be returned through the provided _callback_ function.
 
-|Element         |Display Message                                           |Detailed Message                   |Description |
-|---             |---                                                       |---                                |---    |
-|9013            |There was an error (9013), please contact our support.    |Invalid apiKey parameter.          |The supplied _apiKey_ parameter is not a string or is not a valid BASE64 encoded value.|
-|9014            |There was an error (9014), please contact our support.    |Unhandled error occurred.          |An error that was not handled by the SDK has been thrown.|
-|9015            |There was an error (9015), please contact our support.    |Invalid options argument.          |The supplied _options_ parameter is not an object.|
-|9500            |There was an error (9500), please contact our support.    |Invalid option fields: ${options}  |Invalid values passed as options.|
+|Element         |Display Message                                           |Detailed Message                       |Description |
+|---             |---                                                       |---                                    |---    |
+|9013            |There was an error (9013), please contact our support.    |Invalid apiKey parameter.              |The supplied _apiKey_ parameter is not a string or is not a valid BASE64 encoded value.|
+|9014            |There was an error (9014), please contact our support.    |Unhandled error occurred.              |An error that was not handled by the SDK has been thrown.|
+|9015            |There was an error (9015), please contact our support.    |Invalid options argument.              |The supplied _options_ parameter is not an object.|
+|9500            |There was an error (9500), please contact our support.    |Invalid option fields: ${options}      |The values passed as options are invalid.|
+|9501            |There was an error (9501), please contact our support.    |Invalid merchant configuration setup   |The merchant configuration setup is invalid.|
 
 ## Start Errors
 
@@ -415,7 +416,7 @@ function callback(id, error) {
 |---                        |---                   |---                  |---    |
 |code                       |string                |Yes                  |This is the error code.|
 |displayMessage             |string                |Yes                  |This is the error message that will be displayed.|
-|detailedMessage            |string                |No                   |This is a detailed description of the error.|
+|detailedMessage            |string                |Yes                  |This is a detailed description of the error.|
 |correlationId              |string                |No                   |This is the unique error ID that should be provided to Paysafe Support during an investigation.|
 
 ### Challenge Callback Errors
@@ -427,7 +428,7 @@ The following errors will be returned through the provided _callback_ function.
 |9013            |There was an error (9013), please contact our support.    |Invalid apiKey parameter.          |The supplied _apiKey_ parameter is not a string or is not a valid BASE64 encoded value.|
 |9014            |There was an error (9014), please contact our support.    |Unhandled error occurred.          |An error that was not handled by the SDK has been thrown.|
 |9015            |There was an error (9015), please contact our support.    |Invalid options argument.          |The supplied _options_ parameter is not an object.|
-|9500            |There was an error (9500), please contact our support.    |Invalid option fields: ${options}  |Invalid values passed as options.|
+|9500            |There was an error (9500), please contact our support.    |Invalid option fields: ${options}  |The values passed as options are invalid.|
 
 ## Challenge Errors
 
@@ -1013,7 +1014,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 | currency                              | string<br/>`length=3`                     | This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#CurrencyCodes).                                                                          |
 | card                                  | [object](#cardobject)                     | These are the details of the card used for the request.                                                                                                    |
 | merchantUrl                           | string<br/>`length<=2048`                 | This is the fully qualified URL of the merchant's commercial or customer care website.                                                                                         |
-| txnTime                               | UTC formatted date                        | This is the date and time the request was processed.                                                                                                                           |
+| txnTime                               | UTC formatted date                        | This is the date and time the request was processed. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.                                                                                                                           |
 | error                                 | [object](#errorobject)                    | These are error details in case errors occurred or in the case where decision is FAIL/ERROR.                                                                                                                                                                               |
 | status                                | enum                                      | This is the status of the authentication request. Possible values are:<br/><ul><li>COMPLETED – The transaction has been completed.</li><li>PENDING – The transaction has not been completed yet.</li><li>FAILED – The authentication request failed. Check the error code for details.</li></ul>|
 | acsURL                                | string<br/>`length<=2048`                 | This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.<br/>**Note:** This only exists if a challenge is required.|
@@ -1031,7 +1032,7 @@ You can use the 3D Secure REST APIs to verify whether a credit card is enrolled 
 | authenticationPurpose                 | enum                                      | This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. Possible values are:<br/><ul><li>PAYMENT_TRANSACTION</li><li>RECURRING_TRANSACTION</li><li>INSTALMENT_TRANSACTION</li><li>ADD_CARD</li><li>MAINTAIN_CARD</li><li>EMV_TOKEN_VERIFICATION</li></ul>|
 | deviceChannel                         | enum                                      | This is the type of channel interface used to initiate the transaction. Possible values are:<br/><ul><li>BROWSER</li><li>APP</li><li>3RI</li></ul>|
 | messageCategory                       | enum                                      | This is the category of the message for a specific use case. Possible values are:<br/><ul><li>PAYMENT</li><li>NON_PAYMENT</li></ul>|
-| initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase in UTC format.<br/>**Note:** This element is only required if _messageCategory_=PAYMENT, or, if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
+| initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.<br/>**Note:** This element is only required if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
 | requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>NO_CHALLENGE_REQUESTED</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
 | electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information. <br/>**Note:** If the _electronicDelivery_ parameter is present, the _shippingDetails_ parameter will not be.                                                                                                                                                                               |
 | orderItemDetails                      | [object](#orderitemdetailsobject)         | These are the details of a previously made purchase or preorder.                                                                                                                                                                               |
@@ -1569,7 +1570,7 @@ When providing card information, merchants can provide either card details or a 
 |409                    |5031           |The transaction you have submitted has already been processed.|
 |401                    |5040           |Your merchant account is not configured for the transaction you attempted.|
 |400                    |5042           |The merchant reference number is missing or invalid or it exceeds the maximum permissible length.|
-|404                    |5050           |The merchant configuration is missing.
+|404                    |5050           |The card type is not supported.|
 |400                    |5068           |Either you submitted a request that is missing a mandatory field or the value of a field does not match the format expected.|
 |404                    |5269           |The ID(s) specified in the URL do not correspond to the values in the system.|
 |403                    |5270           |The credentials provided with the request do not have permission to access the requested data.|
@@ -2230,7 +2231,7 @@ This is how you look up an Authentication.
 + `merchantUrl`:`https://www.mysite.com` (string, required) - This is the fully qualified URL of the merchant's commercial or customer care website.
     _length<=2048_
 
-+ `txnTime`:`2019-01-21T16:28:17.735Z` (string) - This is the date and time the request was processed.
++ `txnTime`:`2019-01-21T16:28:17.735Z` (string) - This is the date and time the request was processed. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.
     _Read Only_, _UTC formatted date_
 
 + Include Error
@@ -2329,8 +2330,8 @@ This is how you look up an Authentication.
         + `PAYMENT`
         + `NON_PAYMENT`
 
-+ `initialPurchaseTime`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the purchase in UTC format.         
-  **Note:** This element is only required if _messageCategory_=PAYMENT, or, if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.
++ `initialPurchaseTime`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the purchase. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.         
+  **Note:** This element is only required if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.
 
 + `requestorChallengePreference`:`CHALLENGE_REQUESTED` (enum) - This indicates whether a challenge is requested for this transaction. 
 
