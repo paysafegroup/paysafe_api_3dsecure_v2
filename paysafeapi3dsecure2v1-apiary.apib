@@ -528,9 +528,9 @@ There are a few parameters that are only present during the 1.0 fallback flow. T
 | threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This parameter replaces _threeDResult_ in the directory server response.|
 | xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.|
 
-- If the directory server response (ARes) returns _threeDEnrollment_=N or U and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
-- If the directory server response (ARes) returns _threeDEnrollment_=Y and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
-- If the directory server response (ARes) returns _threeDEnrollment_=Y and _status_=PENDING, then the card issuer has challenged the cardholder and the merchant should continue with the challenge flow.
+- If the directory server returns _threeDEnrollment_=N or U and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+- If the directory server returns _threeDEnrollment_=Y and _status_=COMPLETED, then the authentication is complete and the merchant should consult the liability shift matrix to determine whether to proceed with the Authorization request.
+- If the directory server returns _threeDEnrollment_=Y and _status_=PENDING, then the card issuer has challenged the cardholder and the merchant should continue with the challenge flow.
 
 **API to use:** [3D Secure 2.0 API](#usingtheapi) + [Card API](https://developer.paysafe.com/en/rest-apis/cards/typical-api-calls/process-a-purchase/)
 
