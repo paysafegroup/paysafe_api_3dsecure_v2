@@ -7,13 +7,15 @@ HOST: https://api.test.paysafe.com/threedsecure/
 
 | Version   | Date          | Details |
 |---        |---            |---      |
-| 2         | April 2019    | <ul><li>Document release</li></ul>|
+| 1.0       | May 2019    | <ul><li>Document release</li></ul>|
 
 # Overview 
 
-Paysafe 3D Secure 2 offers speed and security by allowing card issuers to authenticate cardholders using contextual data, only requiring additional customer verification for a small percentage of high-risk transactions. This process allows for faster consumer checkout while also adhering to the strong customer authentication (SCA) requirements. 
+Paysafe 3D Secure 2 offers speed and security by allowing card issuers to authenticate cardholders using contextual data, 
+requiring additional customer verification only for a small percentage of high-risk transactions. 
+This process allows for faster consumer checkout while also adhering to the strong customer authentication (SCA) requirements. 
 
-**Note:** Paysafe is compliant to 3D Secure version 2.1.0. 3D Secure 2 is currently supported for Visa, American Express, and Mastercard brands only. Contact your account manager for more information.
+>**Note:** Paysafe is compliant to 3D Secure version 2.1.0. 3D Secure 2 is currently supported for Visa, American Express, and Mastercard brands only. Contact your account manager for more information.
 
 An overview of the steps in a browser-based 3D Secure cardholder authentication are shown below. For a detailed description of individual scenarios, click [here](#usingtheapi).
 <!---For a detailed description, see the [Introduction to 3D Secure](https://developer.paysafe.com/en/rest-apis/3ds/getting-started/introduction-to-3d-secure/).--->
@@ -56,7 +58,7 @@ In order for you to use the Paysafe REST API, Paysafe must first set you up on t
   * Key Username - MerchantXYZ
   * Key Password - B-tst1-0-51ed39e4-312d02345d3f123120881dff9bb4020a89e8ac44cdfdcecd702151182fdc952272661d290ab2e5849e31bb03deede7e
 
-**Note:** This is not the same as your Merchant Back Office username and password.
+>**Note:** This is not the same as your Merchant Back Office username and password.
 
 The case-sensitive API key is sent using HTTP Basic Authentication. To use HTTP Basic Authentication, you must send the API key credentials using the Authorization header with every request. The Authorization header is constructed as follows:
 
@@ -73,7 +75,7 @@ TWVyY2hhbnRYWVo6Qi10c3QxLTAtNTFlZDM5ZTQtMzEyZDAyMzQ1ZDNmMTIzMTIwODgxZGZmOWJiNDAy
 
 For additional details, please refer to [http://en.wikipedia.org/wiki/Basic_access_authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
 
-**Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
+>**Note:** Your Production API key will be different from your Test API key. Contact your account manager for details. You must keep your API keys safe and ensure that it is used appropriately for your needs.
 
 # URLs
 
@@ -153,7 +155,7 @@ To include the latest official version of the JavaScript SDK, use the following:
     <script src="https://hosted.paysafe.com/threedsecure/js/latest/paysafe.threedsecure.min.js"></script>
 </head>
 ```
-**Note:** Paysafe recommends this approach as you will automatically receive all the latest updates and bug fixes.
+>**Note:** Paysafe recommends this approach as you will automatically receive all the latest updates and bug fixes.
 
 ### Include a Specific Version 
 
@@ -190,14 +192,16 @@ The _options_ object contains three main sections: [environment](#startenvironme
 ### options
 |Element                            |Type                             |Required  |Description |
 |---                                |---                              |---       |---    |
-|[environment](#startenvironment)   |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|[environment](#startenvironment)   |string                           |No        |This selects the environment to use for device fingerprinting. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li></ul><br/>**Note:** If no environment is specified, the value defaults to _LIVE_. |
 |[accountId](#startaccountid)       |string<br/>`length<=20`          |Yes       |This is the account ID that will be used for the transaction.|
-|[card](#startcard)                 |object                           |Yes       |This object contains the card bank identification number (BIN) required for the device fingerprinting operation.|
+|[card](#startcard)                 |object                           |Yes       |This object contains the card Bank Identification Number (BIN) required for the device fingerprinting operation.|
 
 <a name="startenvironment" title="Start Environment"></a>
 ### environment
 
-The _environment_ string selects the environment to use for device fingerprinting. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
+The _environment_ string selects the environment to use for device fingerprinting. 
+The accepted environments are _LIVE_ (the Paysafe Production environment) and _TEST_ (the Paysafe Merchant Test or Sandbox environment). 
+If no environment is specified, the value defaults to _LIVE_.
 
 **TEST**
 ```apib
@@ -236,7 +240,6 @@ paysafe.threedsecure.start("my Base64 encoded single-use API key", {
 
 This is the account ID that will be used for the transaction.
 
-**TEST**
 ```apib
 paysafe.threedsecure.start("my Base64 encoded single-use API key", {
         accountId: "Preferred account ID",
@@ -341,13 +344,15 @@ The _options_ object contains two main sections: [environment](#challengeenviron
 ### options
 |Element                                                    |Type                             |Required  |Description |
 |---                                                        |---                              |---       |---    |
-|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use to handle the challenge. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li><li>Default - If no environment is specified, the value defaults to _LIVE_</li></ul> |
+|[environment](#challengeenvironment)                       |string                           |No        |This selects the environment to use to handle the challenge. The possible values are:<br/><ul><li>TEST - This is the Paysafe Merchant Test or Sandbox environment</li><li>LIVE - This is the Paysafe Production environment</li></ul><br/>**Note:** If no environment is specified, the value defaults to _LIVE_. |
 |[sdkChallengePayload](#challengesdkchallengepayload)       |string<br/>`length<=9999`        |Yes       |This is the Base64-encoded SDK challenge payload returned by the call to the ``/authentications`` endpoint.|
 
 <a name="challengeenvironment" title="Challenge Environment"></a>
 ### environment
 
-The _environment_ string selects the environment to use to handle the challenge. The accepted environments are _LIVE_ (the Paysafe Production environment), _TEST_ (the Paysafe Merchant Test or Sandbox environment). If no environment is specified, the value defaults to _LIVE_.
+The _environment_ string selects the environment to use to handle the challenge. 
+The accepted environments are _LIVE_ (the Paysafe Production environment) and _TEST_ (the Paysafe Merchant Test or Sandbox environment). 
+If no environment is specified, the value defaults to _LIVE_.
 
 **TEST**
 ```apib
@@ -448,7 +453,7 @@ try {
 
 ## Scenarios
 
-You can use the 3D Secure 2 REST APIs to authenticate a credit card when it is being used for an online purchase request. This enables you to process transactions through the Card Payments API that are fully 3D Secure.
+You can use the 3D Secure 2 REST API to authenticate a credit card when it is being used for an online purchase request. This enables you to process transactions through the Card Payments API that are fully 3D Secure.
 
 See the scenarios below describing the steps in some typical 3D Secure API processes.
 
@@ -462,9 +467,9 @@ This scenario illustrates a typical process where the card issuer does not chall
 
 ![](https://github.com/paysafegroup/paysafe_api_3dsecure_v2/raw/master/images/3DS2ScenarioBrowserFrictionless.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3D Secure 2 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token generating) API key and the [card BIN](#startcard). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3D Secure 2 JavaScript SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token generating) API key and the [card BIN](#startcard). For more information on the obtaining the correct API key, [click here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
-1. The JavaScript SDK opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3D Secure 2; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
+1. The JavaScript SDK opens a device fingerprinting session with the issuer's ACS. <br/>**Note:** This step is skipped if the issuer does not support 3D Secure 2; in this case, the flow will fall back to the 3DS 1.0. For more information [click here](#browserflowwithfallback).  
 
 1. The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
 
@@ -486,29 +491,29 @@ This scenario illustrates a typical process where the card issuer challenges the
 
 ![](https://github.com/paysafegroup/paysafe_api_3dsecure_v2/raw/master/images/3DS2ScenarioBrowserChallenge.png)
 
-1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token generating) API key and the [card BIN](#startcard). For more information on the obtaining the correct API key, click [here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
+1. Once the cardholder enters the card details, the merchant initializes the Paysafe 3DS SDK by calling the [_`start()`_](#javascriptsdk) method and includes the public (single-use token generating) API key and the [card BIN](#startcard). For more information on the obtaining the correct API key, [click here](https://developer.paysafe.com/en/sdks/mobile/android/mobile-api-keys/). 
 
-1. The JavaScript SDK opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3D Secure 2; in this case, the flow will fall back to the 3DS 1.0. For more information click [here](#browserflowwithfallback).  
+2. The JavaScript SDK opens a device fingerprinting session with the issuer's ACS. **Note:** This step is skipped if the issuer does not support 3D Secure 2; in this case, the flow will fall back to the 3DS 1.0. For more information [click here](#browserflowwithfallback).  
 
-1. The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
+3. The JavaScript SDK returns the _deviceFingerprintingId_ to the merchant to use in the Authentication request.
 
-1. The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned in step 3.
+4. The merchant submits an Authentication request and includes the required fields along with the _deviceFingerprintingId_ returned in step 3.
 
-1. The 3D Secure 2 API communicates with the directory server and a response is returned to Paysafe.
+5. The 3D Secure 2 API communicates with the directory server and a response is returned to Paysafe.
 
-1. Paysafe interprets the directory server response and returns a response to the merchant, which contains the _threeDResult_*, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.<br/>*If the bank does not support 3D Secure 2, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Browser Flow with a Fallback to 3DS 1.0](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
+6. Paysafe interprets the directory server response and returns a response to the merchant, which contains the _threeDResult_*, _status_, and _sdkChallengePayload_ parameters along with the _authenticationId_. If _status_=PENDING and _threeDResult_=C then the card issuer has challenged the authentication request and requires additional verification.<br/>*If the bank does not support 3D Secure 2, the API will automatically fall back to 3DS 1.0 and the _threeDEnrollment_ parameter will replace _threeDResult_. See [Browser Flow with a Fallback to 3DS 1.0](#browserflowwithfallback) and the [_threeDEnrollment_](#authenticationobject) parameter for more details.
 
-1. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
+7. The merchant stores the _authenticationId_ and passes the _sdkChallengePayload_ as a parameter in the [_`challenge()`_](#javascriptsdk) method to the Paysafe JavaScript SDK.
 
-1. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
+8. The JavaScript SDK communicates with the issuer's ACS to handle the challenge.
 
-1. Once the challenge is complete, the merchant receives a [callback](#challengecallbackfunction) from the JavaScript SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
+9. Once the challenge is complete, the merchant receives a [callback](#challengecallbackfunction) from the JavaScript SDK which includes confirmation of the completed challenge along with the _authenticationId_ parameter.
 
-1. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3D Secure 2 Authentication result fields. If _status_=COMPLETED, then the merchant should consult the [Liability Shift matrix](#liabilityshift) to determine whether to proceed with the Authorization request. 
+10. The merchant performs a server-to-server lookup using the stored _authenticationId_ to obtain the 3D Secure 2 Authentication result fields. If _status_=COMPLETED, then the merchant should consult the [Liability Shift matrix](#liabilityshift) to determine whether to proceed with the Authorization request. 
 
-1. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3D Secure 2 API Authentication result values along with the original card details.
+11. The merchant uses the Card Payments API to submit a payment Authorization request, containing the 3D Secure 2 API Authentication result values along with the original card details.
 
-1. Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authenticated, fraud liability is typically shifted from the merchant to the bank.
+12. Assuming these details are passed to the Card Payments API correctly and the card is 3D Secure authenticated, fraud liability is typically shifted from the merchant to the bank.
 
 <a name="browserflowwithfallback" title="Browser Flow with Fallback"></a>
 ### Browser Flow with a Fallback to 3DS 1.0
@@ -520,7 +525,7 @@ There are a few parameters that are only present during the 1.0 fallback flow. T
 | Element                               | Type                                      | Description                                                                                                                                                                    |
 |---------------------------------------|--------                                   |--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This parameter replaces _threeDResult_ in the directory server response.|
-| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.|
+| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This exists only for 3DS 1.0.|
 
 - If the directory server returns _threeDEnrollment_=N or U and _status_=COMPLETED, then the authentication is complete and the merchant should consult the [Liability Shift matrix](#liabilityshift) to determine whether to proceed with the Authorization request.
 - If the directory server returns _threeDEnrollment_=Y and _status_=COMPLETED, then the authentication is complete and the merchant should consult the [Liability Shift matrix](#liabilityshift) to determine whether to proceed with the Authorization request.
@@ -554,7 +559,9 @@ The following request type is supported:
 <a name="liabilityshift" title="Liability Shift"></a>
 ## 3D Secure 2 Results and Liability Shift
 
-When 3D Secure 2 is used in conjunction with an authorization request through the Card Payments API—requiring the customer to authenticate the card used in the transaction—a major advantage to the merchant is that with disputed payments the financial liability can shift from the merchant to the card issuer. Many factors affect whether this liability shift occurs, so merchants should contact their account manager for advice.
+When 3D Secure 2 is used in conjunction with an authorization request through the Card Payments API &ndash; requiring the customer to authenticate 
+the card used in the transaction &ndash; a major advantage to the merchant is that with disputed payments the financial liability can shift from 
+the merchant to the card issuer. Many factors affect whether this liability shift occurs, so merchants should contact their account manager for advice.
 
 There are some differences in the treatment of liability shift by the different card brands, as outlined below.
 
@@ -630,10 +637,13 @@ If the bank does not support 3D Secure 2, the API will automatically fall back t
 
 ### What to Do After an Unsuccessful Authentication
 
-What should a merchant do if the cardholder cannot be authenticated? For example, if the service is unavailable or the cardholder failed authentication (provided incorrect authentication details). In these circumstances it is the merchant's responsibility to decide how to proceed. Below are some options that you could consider. The best solution will depend on your business and the type of goods and services sold.
+What should a merchant do if the cardholder cannot be authenticated, e.g., if the service is unavailable or the cardholder failed 
+authentication (provided incorrect authentication details)? 
+In these circumstances it is the merchant's responsibility to decide how to proceed. Below are some options that you could consider. 
+The best solution will depend on your business and the type of goods and services sold.
 - Ask the customer to pay using a different payment method.
 - If the authentication service is unavailable or an error occurred during authentication, you may consider requesting that the customer repeats the transaction or performs additional security checks to verify the customer's identity; but be aware that you will not benefit from liability shift and may be held liable for fraudulent transactions.
-- If the cardholder failed authentication you are strongly advised not to proceed—particularly for high-value goods or services.
+- If the cardholder failed authentication you are strongly advised not to proceed, particularly for high-value goods or services.
 
 <a name="isostandards" title="ISO Standards"></a>
 # ISO Standards
@@ -1087,36 +1097,36 @@ What should a merchant do if the cardholder cannot be authenticated? For example
 | currency                              | string<br/>`length=3`                     | This is the currency of the merchant account, e.g., USD or CAD. See [Currency Codes](#CurrencyCodes).                                                                          |
 | card                                  | [object](#cardobject)                     | These are the details of the card used for the request.                                                                                                    |
 | merchantUrl                           | string<br/>`length<=2048`                 | This is the fully qualified URL of the merchant's commercial or customer care website.                                                                                         |
-| txnTime                               | UTC formatted date                        | This is the date and time the request was processed. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.                                                                                                                           |
+| txnTime                               | UTC formatted date                        | This is the date and time the request was processed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.                                                                                                                           |
 | error                                 | [object](#errorobject)                    | These are error details in case errors occurred.                                                                                                                                                                               |
 | status                                | enum                                      | This is the status of the authentication request. Possible values are:<br/><ul><li>COMPLETED – The transaction has been completed.</li><li>PENDING – The transaction has not been completed yet.</li><li>FAILED – The authentication request failed.</li></ul>|
-| acsURL                                | string<br/>`length<=2048`                 | This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.<br/>**Note:** This only exists if a challenge is required.|
-| payload                               | string<br/>`length<=2048`                 | This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS).<br/>**Note:** This only exists if a challenge is required.|
-| threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This only exists for 3DS 1.0.|
-| threeDResult                          | enum                                      | This indicates the outcome of the authentication. Possible values are:<br/><ul><li>Y – The cardholder successfully authenticated with their card issuer.</li><li>A – The cardholder authentication was attempted.</li><li>N – The cardholder failed to successfully authenticate with their card issuer.</li><li>U – Authentication with the card issuer was unavailable.</li><li>C – Challenge Required; additional authentication is required.</li><li>R – Rejected transaction.</li></ul><br/>**Note:** The _C_ and _R_ values only exist for 3D Secure 2.|
-| threeDSecureVersion                   | string<br/>`min=5, max=8`                 | This is the 3D secure protocol version. <br/>**Note:** If no version is specified in the request, value defaults to 1.0.2. and is echoed in the response.|
-| directoryServerTransactionId          | string<br/>`length<=36`                   | This is the directory server transaction ID required for Mastercard.<br/>**Note:** This only exists for 3D Secure 2.                                                                   |
-| eci                                   | number<br/>`length<=2`                    | This is the Electronic Commerce Indicator code, which gets returned by the card issuer indicating whether the cardholder was successfully authenticated. Note that in some cases the *eci* value includes a leading zero, e.g., 01 or 02.<br/>**Visa, Amex, JCB, and Diners Club**<ul><li>5 &ndash; Identifies a successfully authenticated transaction.</li><li>6 &ndash; Identifies an attempted authenticated transaction.</li><li>7 &ndash; Identifies a non-authenticated transaction.</li></ul><br/>**Mastercard**<ul><li>0 &ndash; Identifies a non-authenticated transaction.</li><li>1 &ndash; Identifies an attempted authenticated transaction.</li><li>2 &ndash; Identifies a successfully authenticated transaction.</li></ul> <br/>**Note:** This only exists when no challenge is required, i.e., a frictionless authentication. |
-| cavv                                  | string<br/>`length<=2048`                 | This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.<br/>**Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.|
-| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This only exists for 3DS 1.0.2.|
-| sdkChallengePayload                   | string<br/>`length<=9999`                 | This is a payload that, if returned, should be passed to the _challenge_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This only exists when a challenge is required.|
-| transactionIntent                     | enum                                      | This identifies the type of transaction being authenticated. Possible values are:<br/><ul><li>GOODS_OR_SERVICE_PURCHASE</li><li>CHECK_ACCEPTANCE</li><li>ACCOUNT_FUNDING</li><li>QUASI_CASH_TRANSACTION</li><li>PREPAID_ACTIVATION</li></ul><br/>**Note:** This element is only required in certain markets, e.g., Brazil.                                                                                                                   |
+| acsURL                                | string<br/>`length<=2048`                 | This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.<br/>**Note:** This exists only if a challenge is required.|
+| payload                               | string<br/>`length<=2048`                 | This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS).<br/>**Note:** This exists only if a challenge is required.|
+| threeDEnrollment                      | enum                                      | This indicates whether the cardholder is enrolled in 3D Secure. Possible values are:<br/><ul><li>Y – Cardholder authentication is available</li><li>N – Cardholder is not enrolled in authentication</li><li>U – Cardholder authentication unavailable</li></ul><br/>**Note:** This exists only for 3DS 1.0.|
+| threeDResult                          | enum                                      | This indicates the outcome of the authentication. Possible values are:<br/><ul><li>Y – The cardholder successfully authenticated with their card issuer.</li><li>A – The cardholder authentication was attempted.</li><li>N – The cardholder failed to successfully authenticate with their card issuer.</li><li>U – Authentication with the card issuer was unavailable.</li><li>C – Challenge Required; additional authentication is required.</li><li>R – Rejected transaction.</li></ul><br/>**Note:** The _C_ and _R_ values exist only for 3D Secure 2.|
+| threeDSecureVersion                   | string<br/>`min=5, max=8`                 | This is the 3D Secure protocol version. <br/>**Note:** If no version is specified in the request, value defaults to 1.0.2. and is echoed in the response.|
+| directoryServerTransactionId          | string<br/>`length<=36`                   | This is the directory server transaction ID required for Mastercard.<br/>**Note:** This exists only for 3D Secure 2.                                                                   |
+| eci                                   | number<br/>`length<=2`                    | This is the Electronic Commerce Indicator code, which gets returned by the card issuer indicating whether the cardholder was successfully authenticated. Note that in some cases the *eci* value includes a leading zero, e.g., 01 or 02.<br/>**Visa, Amex, JCB, and Diners Club**<ul><li>5 &ndash; Identifies a successfully authenticated transaction.</li><li>6 &ndash; Identifies an attempted authenticated transaction.</li><li>7 &ndash; Identifies a non-authenticated transaction.</li></ul><br/>**Mastercard**<ul><li>0 &ndash; Identifies a non-authenticated transaction.</li><li>1 &ndash; Identifies an attempted authenticated transaction.</li><li>2 &ndash; Identifies a successfully authenticated transaction.</li></ul> <br/>**Note:** This exists only when no challenge is required, i.e., a frictionless authentication. |
+| cavv                                  | string<br/>`length<=2048`                 | This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. This value should be appended to the authorization request signifying that the transaction has been successfully authenticated.<br/>**Note:** This exists only when no challenge is required, i.e., a successful frictionless authentication.|
+| xid                                   | string<br/>`length<=40`                   | This is the transaction identifier returned by the card issuer.<br/>**Note:** This exists only for 3DS 1.0.2.|
+| sdkChallengePayload                   | string<br/>`length<=9999`                 | This is a payload that, if returned, should be passed to the _challenge_ function of the JavaScript SDK to continue with the challenge.<br/>**Note:** This exists only when a challenge is required.|
+| transactionIntent                     | enum                                      | This identifies the type of transaction being authenticated. Possible values are:<br/><ul><li>GOODS_OR_SERVICE_PURCHASE</li><li>CHECK_ACCEPTANCE</li><li>ACCOUNT_FUNDING</li><li>QUASI_CASH_TRANSACTION</li><li>PREPAID_ACTIVATION</li></ul><br/>**Note:** This element is required only in certain markets, e.g., Brazil.                                                                                                                   |
 | maxAuthorizationsForInstalmentPayment | number<br/>`max=999`                      | This is the maximum number of authorizations permitted for installment payments.<br/>**Note:** This is required if _authenticationPurpose_=INSTALMENT_TRANSACTION.|
 | authenticationPurpose                 | enum                                      | This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. Possible values are:<br/><ul><li>PAYMENT_TRANSACTION</li><li>RECURRING_TRANSACTION</li><li>INSTALMENT_TRANSACTION</li><li>ADD_CARD</li><li>MAINTAIN_CARD</li><li>EMV_TOKEN_VERIFICATION</li></ul>|
 | deviceChannel                         | enum                                      | This is the type of channel interface used to initiate the transaction. Possible values are:<br/><ul><li>BROWSER</li><li>APP</li><li>3RI</li></ul>|
 | messageCategory                       | enum                                      | This is the category of the message for a specific use case. Possible values are:<br/><ul><li>PAYMENT</li><li>NON_PAYMENT</li></ul>|
-| initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.<br/>**Note:** This element is only required if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
+| initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.<br/>**Note:** This element is required only if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
 | requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>NO_CHALLENGE_REQUESTED</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
 | electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information. <br/>**Note:** If the _electronicDelivery_ parameter is present, the _shippingDetails_ parameter will not be.                                                                                                                                                                               |
 | orderItemDetails                      | [object](#orderitemdetailsobject)         | These are the details of a previously made purchase or preorder.                                                                                                                                                                               |
 | purchasedGiftCardDetails              | [object](#purchasedgiftcarddetailsobject) | These are the details of a previously made gift card purchase.                                                                                                                                                                               |
 | billingCycle                          | [object](#billingcycleobject)             | This is the billing cycle information for recurring payments.<br/>**Note:** This object is required if _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
 | browserDetails                        | [object](#browserdetailsobject)           | These are the browser details.<br/>**Note:** This object is not required if the Paysafe SDK is used for device fingerprinting.|
-| userAccountDetails                    | [object](#useraccountdetailsobject)       | These are the user account details from the merchant website.<br/>**Note:** This element is only required if _isAirTravel_=true.|
+| userAccountDetails                    | [object](#useraccountdetailsobject)       | These are the user account details from the merchant website.<br/>**Note:** This element is required only if _isAirTravel_=true.|
 | billingDetails                        | [object](#billingdetailsobject)           | These are the billing details for the request.|
 | shippingDetails                       | [object](#shippingdetailsobject)          | This is the shipping address of the customer.<br/>**Note:** If the _shippingDetails_ parameter is present, the _electronicDelivery_ parameter will not be.                                                                                                                            |
 | profile                               | [object](#profileobject)                  | This is the customer profile.                                                                                                                                                                               |
-| signatureStatus                       | enum                                      | This is the 3D Secure signature verification result value. Possible values are:<br/><ul><li>Y – All transaction and signature checks satisfied.</li><li>N – At least one transaction or signature check failed.</li></ul><br/>**Note:** This only exists for 3DS 1.0.2. |
+| signatureStatus                       | enum                                      | This is the 3D Secure signature verification result value. Possible values are:<br/><ul><li>Y – All transaction and signature checks satisfied.</li><li>N – At least one transaction or signature check failed.</li></ul><br/>**Note:** This exists only for 3DS 1.0.2. |
 
 ```apib
 {
@@ -1244,7 +1254,7 @@ What should a merchant do if the cardholder cannot be authenticated? For example
 
 ```apib
 {
-    "endDate": "2019-01-26",
+    "endDate": "2021-01-26",
     "frequency": 1
 }
 ```
@@ -1381,7 +1391,7 @@ When providing card information, merchants can provide either card details or a 
 
 | Element                         | Type               | Description                                                                                                                                                        |
 |---------------------------------|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| preOrderItemAvailabilityDate    | UTC formatted date | For a pre-ordered purchase, this is the date that the merchandise is expected to be available. The ISO 8601 date format is expected i.e., YYYY-MM-DD.|
+| preOrderItemAvailabilityDate    | UTC formatted date | For a pre-ordered purchase, this is the date that the merchandise is expected to be available. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
 | preOrderPurchaseIndicator       | enum               | This indicates whether the cardholder is placing an order for available merchandise or merchandise with a future availability or release date. Possible values are:<br/><ul><li>MERCHANDISE_AVAILABLE</li><li>FUTURE_AVAILABILITY</li></ul>|
 | reorderItemsIndicator           | enum               | This indicates whether the cardholder is reordering merchandise. Possible values are:<br/><ul><li>FIRST_TIME_ORDER</li><li>REORDER</li></ul>|
 | shippingIndicator               | enum               | This is the shipping method for the transaction. Possible values are:<br/><ul><li>SHIP_TO_BILLING_ADDRESS</li><li>SHIP_TO_VERIFIED_ADDRESS</li><li>SHIP_TO_DIFFERENT_ADDRESS</li><li>SHIP_TO_STORE</li><li>DIGITAL_GOODS</li><li>TRAVEL_AND_EVENT_TICKETS</li><li>OTHER</li></ul>|
@@ -1711,7 +1721,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
 
     + account_id:123456789 (string, required) - This is the merchant account number.
 
-+ Request Authentication - Browser flow with "frictionless" authentication (application/json)
++ Request Authentication - Browser flow with "Frictionless" Authentication (application/json)
 
     + Headers
             
@@ -1887,7 +1897,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "threeDSecureVersion": "2.1.0"
              }
 
-+ Request Authentication - Browser flow with issuer challenge (application/json)
++ Request Authentication - Browser Flow with Issuer Challenge (application/json)
 
     + Headers
             
@@ -2060,7 +2070,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
              }
 
-+ Request Authentication - Browser flow with fallback to 1.0 (application/json)
++ Request Authentication - Browser Flow with Fallback to 1.0 (application/json)
 
     + Headers
             
@@ -2274,7 +2284,7 @@ This is how you look up an Authentication.
 
 ## Authentication Request
 
-+ `id`:`123e4567-e89b-12d3-a456-4266554456745` (string, required) - This is the ID returned in the response.
++ `id`:`123e4567-e89b-12d3-a456-4266554456745` (string) - This is the ID returned in the response.
     _Read Only_, _length<=36_
     
 + `deviceFingerprintingId`:`123e4567-e89b-12d3-a456-426655440000` (string, required) - This is the UUID used with device fingerprinting.
@@ -2306,31 +2316,26 @@ This is how you look up an Authentication.
         + `COMPLETED`
         + `FAILED`
 
-+ `acsURL`:`https://www.acs.com` (string) - This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction.
-  **Note:** This only exists if a challenge is required.
++ `acsURL`:`https://www.acs.com` (string) - This is the fully qualified URL to redirect the consumer to complete the payer authentication transaction. **Note:** This exists only if a challenge is required.
     _Read Only_, _length<=28_
 
-+ `payload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS). 
-  **Note:** This only exists if a challenge is required.
++ `payload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is the encoded Payment Authentication Request generated by the merchant authentication processing system (MAPS). **Note:** This exists only if a challenge is required.
     _Read Only_, _length<=2048_
 
-+ `signatureStatus`:`Y` (enum) - This is the 3D Secure signature verification result value.
-  **Note:** This only exists for 3DS 1.0.2.
++ `signatureStatus`:`Y` (enum) - This is the 3D Secure signature verification result value. **Note:** This exists only for 3DS 1.0.2.
     _length<=2048_
     + Members
         + `Y`
         + `N`
 
-+ `threeDEnrollment`:`Y` (enum) - This indicates whether the cardholder is enrolled in 3D Secure.
-  **Note:** This only exists for 3DS 1.0.2.
++ `threeDEnrollment`:`Y` (enum) - This indicates whether the cardholder is enrolled in 3D Secure. **Note:** This exists only for 3DS 1.0.2.
     _Read Only_
     + Members
         + `Y`
         + `N`
         + `U`
 
-+ `threeDResult`:`Y` (enum) - This indicates the outcome of the authentication.
-  **Note:** The _C_ and _R_ values only exist for 3D Secure 2.
++ `threeDResult`:`Y` (enum) - This indicates the outcome of the authentication. **Note:** The _C_ and _R_ values only exist for 3D Secure 2.
     _Read Only_
     + Members
         + `Y`
@@ -2340,31 +2345,25 @@ This is how you look up an Authentication.
         + `C`
         + `R`
 
-+ `threeDSecureVersion`:`2.1.0` (string) - This is the 3D secure protocol version. **Note:** If no version is specified in the request, value defaults to 1.0.2. and is echoed in the response.|
++ `threeDSecureVersion`:`2.1.0` (string) - This is the 3D Secure protocol version. **Note:** If no version is specified in the request, value defaults to 1.0.2. and is echoed in the response.|
     _Read Only_, _min=5_ _max=8_
 
-+ `directoryServerTransactionId`:`123e4567-e89b-12d3-a456-4266554456745` (string) - This is the directory server transaction ID required for Mastercard.
-  **Note:** This only exists for 3D Secure 2.
++ `directoryServerTransactionId`:`123e4567-e89b-12d3-a456-4266554456745` (string) - This is the directory server transaction ID required for Mastercard. **Note:** This exists only for 3D Secure 2.
     _Read Only_, _length<=36_
 
-+ `eci`:`5` (number) - This is the E-Commerce Indicator (ECI). 
-  **Note:** This only exists when no challenge is required, i.e., a frictionless authentication.
++ `eci`:`5` (number) - This is the E-Commerce Indicator (ECI). **Note:** This exists only when no challenge is required, i.e., a frictionless authentication.
     _Read Only_, _length<=2_
   
-+ `cavv`:`AAABBhkXYgAAAAACBxdiENhf7A+=` (string) - This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated.
-  **Note:** This only exists when no challenge is required, i.e., a successful frictionless authentication.
++ `cavv`:`AAABBhkXYgAAAAACBxdiENhf7A+=` (string) - This is the Cardholder Authentication Verification Value, indicating that the transaction has been authenticated. **Note:** This exists only when no challenge is required, i.e., a successful frictionless authentication.
     _Read Only_, _length<=28_
 
-+ `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer.
-  **Note:** This only exists for 3DS 1.0.
++ `xid`:`aWg4N1ZZOE53TkFrazJuMmkyRDA=` (string) - This is the transaction identifier returned by the card issuer. **Note:** This exists only for 3DS 1.0.
     _Read Only_, _length<=40_
 
-+ `sdkChallengePayload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is a payload that, if returned, should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge.
-  **Note:** This only exists when a challenge is required.
++ `sdkChallengePayload`:`eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==` (string) - This is a payload that, if returned, should be passed to the _continue_ function of the JavaScript SDK to continue with the challenge. **Note:** This exists only when a challenge is required.
     _Read Only_, _length<=9999_
 
-+ `transactionIntent`:`GOODS_OR_SERVICE_PURCHASE` (enum) - This identifies the type of transaction being authenticated. 
-  **Note:** This element is only required in certain markets, e.g., Brazil.
++ `transactionIntent`:`GOODS_OR_SERVICE_PURCHASE` (enum) - This identifies the type of transaction being authenticated. **Note:** This element is required only in certain markets, e.g., Brazil.
   
     + Members
         + `GOODS_OR_SERVICE_PURCHASE`
@@ -2373,7 +2372,7 @@ This is how you look up an Authentication.
         + `QUASI_CASH_TRANSACTION`
         + `PREPAID_ACTIVATION`
 
-+ `maxAuthorizationsForInstalmentPayment`:`2` (number) - This is the maximum number of authorizations permitted for instalment payments. **Note:** This element is only required if the merchant and cardholder have agreed to instalment payments, i.e., if _authenticationPurpose_=INSTALMENT_TRANSACTION.
++ `maxAuthorizationsForInstalmentPayment`:`2` (number) - This is the maximum number of authorizations permitted for instalment payments. **Note:** This element is required only if the merchant and cardholder have agreed to instalment payments, i.e., if _authenticationPurpose_=INSTALMENT_TRANSACTION.
     _length=999_ 
 
 + `authenticationPurpose`:`INSTALMENT_TRANSACTION` (enum, required) - This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. 
@@ -2399,8 +2398,7 @@ This is how you look up an Authentication.
         + `PAYMENT`
         + `NON_PAYMENT`
 
-+ `initialPurchaseTime`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the purchase. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ.         
-  **Note:** This element is only required if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.
++ `initialPurchaseTime`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the purchase. The ISO 8601 date format is expected i.e., YYYY-MM-DD-THH:MM:SSZ. **Note:** This element is required only if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.
 
 + `requestorChallengePreference`:`CHALLENGE_REQUESTED` (enum) - This indicates whether a challenge is requested for this transaction. 
 
@@ -2486,39 +2484,40 @@ This is how you look up an Authentication.
         + `userAgent`:`Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)` (string, required) - This is the User-Agent header from the customer's browser.
           _length<=256_ 
           
-## Card
+## `Card`
 
-+ `card` (object, required) - These are the details of the card used in the request. When providing card information, merchants can provide either card details or a payment token for a customer already created in the system.
-    + Properties
-        
-        + `holderName`:`John Smith` (string) - This is the name of the cardholder.
-            _length<=45_
-        + `cardBin`:`411111` (string) - This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card.
-            _length<=6_
-        + `cardNum`:`4111111111111111` (string, required) - This is the card number used for the request.
-            _length=8-20_
-        + Include Card Expiry
-        + `type`:`VI` (enum) - This is the type of card used for the request.
-            _Read Only_
-            + Members
-                + `AM`
-                + `MC`
-                + `VI`        
-        + `lastDigits`:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.
-            _Read Only_
-        + `paymentToken`:`CBQckvn3uDdNQPS` (string) - If the payment token is provided, no other card information is necessary.
-            _length<=80_  
++ One of
 
-## Card Expiry
-
-+ `cardExpiry` (object, required) - This is the card expiry date.
-
-    + Properties
+    + card (object, required) - This is the payment token that represents the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
     
-        + `month`:11 (string, required) - This is the month the card expires.
-            _length=2_
-        + `year`:2020 (string, required) - This is the year the card expires.
-            _length=4_
+        + Properties
+
+            + paymentToken:`LTEyMzYzMjQ3ODg` (string, required) - This is the payment token representing the card.
+                _length<=80_
+
+    + card (object, required) - These are the details of the [card](#cardobject) used for the request. Only one **card** object can be included in the request.
+    
+        + Properties
+
+            + `holderName`:`John Smith` (string) - This is the name of the cardholder.
+                _length=<=45_
+            + `cardBin`:`411111` (string) - This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card.
+                _length<=6_
+            + `cardNum`:`4111111111111111` (string, required) - This is the card number used for the request.
+                _length=8-20_
+            + `type`:`VI` (enum) - This is the type of card used for the request.
+                _Read Only_
+                + Members
+                    + `AM`
+                    + `MC`
+                    + `VI`
+            + cardExpiry (object, required) - This is the card's [expiry date](#cardexpiryobject).
+                + month:12 (number, required) - This is the card expiry month.
+                    _length=2_
+                + year:2020 (number, required) - This is the card expiry year.
+                    _length=4_
+            + `lastDigits`:`1111` (string) - This is the last four digits of the card used for the request, returned in the response.
+                _Read Only_
 
 ## Electronic Delivery
 
@@ -2699,27 +2698,26 @@ This is how you look up an Authentication.
 ## Travel Details
 
 + `travelDetails` (object) - These are the Amex-specific travel details.
-  **Note:** This element is only required if _isAirTravel_=true.
   
     + Properties
     
         + `isAirTravel`:`true` (boolean) - This indicates whether the transaction is an air travel related purchase, e.g., a ticket purchase. Default is _false_.
-        + `airlineCarrier`:`Windsor` (string) - This is the selected airline carrier.
+        + `airlineCarrier`:`Windsor` (string) - This is the selected airline carrier. **Note:** This element is required only if _isAirTravel_=true.
           _length<=256_
-        + `departureDate`:`2014-01-26` (string) - This is the date of departure in the time zone of the departure location. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.
-        + `destination`:`SOF` (string) - This is the airport code of the destination airport.
+        + `departureDate`:`2014-01-26` (string) - This is the date of departure in the time zone of the departure location. The ISO 8601 date format is expected, i.e., YYYY-MM-DD. **Note:** This element is required only if _isAirTravel_=true.
+        + `destination`:`SOF` (string) - This is the airport code of the destination airport. **Note:** This element is required only if _isAirTravel_=true.
           _length<=5_
-        + `origin`:`BCN` (string) - This is the airport code of the originating airport.
+        + `origin`:`BCN` (string) - This is the airport code of the originating airport. **Note:** This element is required only if _isAirTravel_=true.
           _length<=5_
-        + `passengerFirstName`:`John` (string) - This is the first name of the cardholder from the billing details.
+        + `passengerFirstName`:`John` (string) - This is the first name of the cardholder from the billing details. **Note:** This element is required only if _isAirTravel_=true.
           _length<=99_
-        + `passengerLastName`:`Smith` (string) - This is the last name of the cardholder from the billing details.
+        + `passengerLastName`:`Smith` (string) - This is the last name of the cardholder from the billing details. **Note:** This element is required only if _isAirTravel_=true.
           _length<=99_  
 
 ## User Account Details
 
 + `userAccountDetails` (object) - These are the user account details from the merchant website.
-  **Note:** This element is only required if _isAirTravel_=true. 
+  **Note:** This element is required only if _isAirTravel_=true. 
 
     + Properties
     
