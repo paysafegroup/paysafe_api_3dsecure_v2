@@ -1550,12 +1550,12 @@ When providing card information, merchants can provide either card details or a 
 |Element                         |Type                                              |Description|
 |---                             |---                                               |---       |
 |addCardAttemptsForLastDay       |number<br/>`max=999`                              |This is the number of Add Card attempts in the last 24 hours.|
-|changeDate                      |UTC formatted date                                |This is the date that the cardholder’s account with the 3DS Requestor was last changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
-|changeRange                     |enum                                              |This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction. Possible values are:<br/><ul><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|changedDate                     |UTC formatted date                                |This is the date that the cardholder’s account with the 3DS Requestor was last changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|changedRange                    |enum                                              |This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction. Possible values are:<br/><ul><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
 |createdDate                     |UTC formatted date                                |This is the date when the cardholder opened the account with the 3DS Requestor. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
 |createdRange                    |enum                                              |This is the length of time between the cardholder opening the account with the 3DS Requestor and the API call of the current transaction. Possible values are:<br/><ul><li>NO_ACCOUNT</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
-|passwordChangeDate              |UTC formatted date                                |This is the date when the cardholder’s account was reset or the password was changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
-|passwordChangeRange             |enum                                              |This is the length of time between the most recent password change or cardholder account reset and the API call of the current transaction. Possible values are:<br/><ul><li>NO_CHANGE</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
+|passwordChangedDate             |UTC formatted date                                |This is the date when the cardholder’s account was reset or the password was changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.|
+|passwordChangedRange            |enum                                              |This is the length of time between the most recent password change or cardholder account reset and the API call of the current transaction. Possible values are:<br/><ul><li>NO_CHANGE</li><li>DURING_TRANSACTION</li><li>LESS_THAN_THIRTY_DAYS</li><li>THIRTY_TO_SIXTY_DAYS</li><li>MORE_THAN_SIXTY_DAYS</li></ul>|
 |paymentAccountDetails           |[object](#paymentaccountdetailsobject)            |These are the details of the current payment account of the cardholder.|
 |priorThreeDSAuthentication      |[object](#priorthreedsauthenticationobject)       |This is the previous authentication information used with current merchant, cardholder, and card.|
 |shippingDetailsUsage            |[object](#shippingdetailsusageobject)             |This is the shipping usage information.|
@@ -1569,12 +1569,12 @@ When providing card information, merchants can provide either card details or a 
 ```apib
 {
     "addCardAttemptsForLastDay": 1,
-    "changeDate": "2014-01-26",
-    "changeRange": "DURING_TRANSACTION",
+    "changedDate": "2014-01-26",
+    "changedRange": "DURING_TRANSACTION",
     "createdDate": "2014-01-26",
     "createdRange": "NO_ACCOUNT",
-    "passwordChangeDate": "2014-01-26",
-    "passwordChangeRange": "NO_CHANGE",
+    "passwordChangedDate": "2014-01-26",
+    "passwordChangedRange": "NO_CHANGE",
     "paymentAccountDetails": {
       "createdRange": "NO_ACCOUNT",
       "createdDate": "2014-01-26"
@@ -1616,7 +1616,7 @@ When providing card information, merchants can provide either card details or a 
 
 |Element                |Type                       |Description|
 |---                    |---                        |---|
-|authenticationMethod   |enum                       |This is the mechanism used by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>NO_LOGIN</li><li>INTERNAL_CREDENTIALS</li><li>FEDERATED_ID</li><li>ISSUER_CREDENTIALS</li><li>THIRD_PARY_AUTHENTICATION</li><li>FIDO_AUTHENTICATOR</li></ul>|
+|authenticationMethod   |enum                       |This is the mechanism used by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>NO_LOGIN</li><li>INTERNAL_CREDENTIALS</li><li>FEDERATED_ID</li><li>ISSUER_CREDENTIALS</li><li>THIRD_PARTY_AUTHENTICATION</li><li>FIDO_AUTHENTICATOR</li></ul>|
 |data                   |string<br/>`max=2048 bytes`|This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.|
 |time                   |UTC formatted date         |This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.|
 
@@ -2732,7 +2732,7 @@ This is how you look up an Authentication.
                 + `MORE_THAN_SIXTY_DAYS`  
                 
         + `changedDate`:`2017-01-26` (string) - This is the date that the cardholder’s account with the 3DS Requestor was last changed. The ISO 8601 date format is expected, i.e., YYYY-MM-DD.                
-        + `changeRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction.
+        + `changedRange`:`MORE_THAN_SIXTY_DAYS` (enum) - This is the length of time between the most recent change to the cardholder’s account information and the API call of the current transaction.
         
             + Members
                 + `DURING_TRANSACTION`
@@ -2773,14 +2773,14 @@ This is how you look up an Authentication.
     
         + `data`: (string) - This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.
           _max=2048 bytes_
-        + `authenticationMethod`:`THIRD_PARY_AUTHENTICATION` (enum) - This is the mechanism used by the cardholder to authenticate to the 3DS Requestor.
+        + `authenticationMethod`:`THIRD_PARTY_AUTHENTICATION` (enum) - This is the mechanism used by the cardholder to authenticate to the 3DS Requestor.
         
             + Members
                 + `NO_LOGIN`
                 + `INTERNAL_CREDENTIALS`
                 + `FEDERATED_ID`
                 + `ISSUER_CREDENTIALS`
-                + `THIRD_PARY_AUTHENTICATION`
+                + `THIRD_PARTY_AUTHENTICATION`
                 + `FIDO_AUTHENTICATOR`
                 
         + `time`:`2014-01-26T10:32:28Z` (string) - This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.
