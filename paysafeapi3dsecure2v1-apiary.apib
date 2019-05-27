@@ -1617,7 +1617,7 @@ When providing card information, merchants can provide either card details or a 
 |Element                |Type                       |Description|
 |---                    |---                        |---|
 |authenticationMethod   |enum                       |This is the mechanism used by the cardholder to authenticate to the 3DS Requestor. Possible values are:<br/><ul><li>NO_LOGIN</li><li>INTERNAL_CREDENTIALS</li><li>FEDERATED_ID</li><li>ISSUER_CREDENTIALS</li><li>THIRD_PARTY_AUTHENTICATION</li><li>FIDO_AUTHENTICATOR</li></ul>|
-|data                   |string<br/>`max=2048 bytes`|This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.|
+|data                   |string<br/>`max=2048 bytes`|This field is reserved for future iterations of 3D Secure 2.|
 |time                   |UTC formatted date         |This is the date and time of the cardholder authentication. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.|
 
 ```apib
@@ -2771,7 +2771,7 @@ This is how you look up an Authentication.
 
     + Properties
     
-        + `data`: (string) - This is the data that documents and supports a specific authentication process. Not currently specified in detail, intended to carry data that the ACS can use to verify the authentication process.
+        + `data`: (string) - This field is reserved for future iterations of 3D Secure 2.
           _max=2048 bytes_
         + `authenticationMethod`:`THIRD_PARTY_AUTHENTICATION` (enum) - This is the mechanism used by the cardholder to authenticate to the 3DS Requestor.
         
