@@ -1113,10 +1113,10 @@ The best solution will depend on your business and the type of goods and service
 | transactionIntent                     | enum                                      | This identifies the type of transaction being authenticated. Possible values are:<br/><ul><li>GOODS_OR_SERVICE_PURCHASE</li><li>CHECK_ACCEPTANCE</li><li>ACCOUNT_FUNDING</li><li>QUASI_CASH_TRANSACTION</li><li>PREPAID_ACTIVATION</li></ul><br/>**Note:** This element is required only in certain markets, e.g., Brazil.                                                                                                                   |
 | maxAuthorizationsForInstalmentPayment | number<br/>`max=999`                      | This is the maximum number of authorizations permitted for installment payments.<br/>**Note:** This is required if _authenticationPurpose_=INSTALMENT_TRANSACTION.|
 | authenticationPurpose                 | enum                                      | This is the type of Authentication request. This data element provides additional information to the ACS to determine the best approach for handling an authentication request. Possible values are:<br/><ul><li>PAYMENT_TRANSACTION</li><li>RECURRING_TRANSACTION</li><li>INSTALMENT_TRANSACTION</li><li>ADD_CARD</li><li>MAINTAIN_CARD</li><li>EMV_TOKEN_VERIFICATION</li></ul>|
-| deviceChannel                         | enum                                      | This is the type of channel interface used to initiate the transaction. Possible values are:<br/><ul><li>BROWSER</li><li>APP</li><li>3RI</li></ul>|
+| deviceChannel                         | enum                                      | This is the type of channel interface used to initiate the transaction. Possible values are:<br/><ul><li>BROWSER</li><li>SDK</li><li>3RI</li></ul>|
 | messageCategory                       | enum                                      | This is the category of the message for a specific use case. Possible values are:<br/><ul><li>PAYMENT</li><li>NON_PAYMENT</li></ul>|
 | initialPurchaseTime                   | UTC formatted date                        | This is the date and time of the purchase. The ISO 8601 date format is expected, i.e., YYYY-MM-DD-THH:MM:SSZ.<br/>**Note:** This element is required only if _messageCategory_=NON_PAYMENT and _authenticationPurpose_=INSTALMENT_TRANSACTION or RECURRING_TRANSACTION.|
-| requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>NO_CHALLENGE_REQUESTED</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
+| requestorChallengePreference          | enum                                      | This indicates whether a challenge is requested for this transaction. Possible values are:<br/><ul><li>NO_PREFERENCE</li><li>CHALLENGE_REQUESTED</li><li>CHALLENGE_MANDATED</li></ul>|
 | electronicDelivery                    | [object](#electronicdeliveryobject)       | This is the electronic delivery information. <br/>**Note:** If the _electronicDelivery_ parameter is present, the _shippingDetails_ parameter will not be.                                                                                                                                                                               |
 | orderItemDetails                      | [object](#orderitemdetailsobject)         | These are the details of a previously made purchase or preorder.                                                                                                                                                                               |
 | purchasedGiftCardDetails              | [object](#purchasedgiftcarddetailsobject) | These are the details of a previously made gift card purchase.                                                                                                                                                                               |
@@ -2448,7 +2448,7 @@ This is how you look up an Authentication.
 
     + Members
         + `BROWSER`
-        + `APP`
+        + `SDK`
         + `3RI`
 
 + `messageCategory`:`PAYMENT` (enum, required) - This is the category of the message for a specific use case. 
@@ -2463,7 +2463,6 @@ This is how you look up an Authentication.
 
     + Members
         + `NO_PREFERENCE`
-        + `NO_CHALLENGE_REQUESTED`
         + `CHALLENGE_REQUESTED`
         + `CHALLENGE_MANDATED`
 
