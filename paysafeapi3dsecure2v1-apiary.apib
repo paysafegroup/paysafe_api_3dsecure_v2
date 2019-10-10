@@ -1334,6 +1334,7 @@ When providing card information, merchants can provide either card details or a 
 
 ```apib
     "card": {
+        "holderName": "John Smith",
         "cardNum": "4111111111111111",
         "cardExpiry": {
             "month": 2,
@@ -2557,7 +2558,7 @@ This is how you look up an Authentication.
     
         + Properties
 
-            + `holderName`:`John Smith` (string) - This is the name of the cardholder.
+            + `holderName`:`John Smith` (string, required) - This is the name of the cardholder.
                 _length=<=45_
             + `cardBin`:`411111` (string) - This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card.
                 _length<=6_
