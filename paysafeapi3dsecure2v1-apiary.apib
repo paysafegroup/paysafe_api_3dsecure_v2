@@ -1127,11 +1127,16 @@ The best solution will depend on your business and the type of goods and service
 | shippingDetails                       | [object](#shippingdetailsobject)          | This is the shipping address of the customer.<br/>**Note:** If the _shippingDetails_ parameter is present, the _electronicDelivery_ parameter will not be.                                                                                                                            |
 | profile                               | [object](#profileobject)                  | This is the customer profile.                                                                                                                                                                               |
 | signatureStatus                       | enum                                      | This is the 3D Secure signature verification result value. Possible values are:<br/><ul><li>Y – All transaction and signature checks satisfied.</li><li>N – At least one transaction or signature check failed.</li></ul><br/>**Note:** This exists only for 3DS 1.0.2. |
+| threeDSecureServerTransactionId       | string <br/> `length=36`                  | The 3D Secure Server transaction Id.|
+| merchantName                          | string <br/> `min=1, max=25`              | This overrides the static configured merchant name for the specific authentication request.|
+| mcc                                   | string <br/>`length=4`                    | This overrides the static configured merchant code for the specific authentication request.|
 
 ```apib
 {
   "amount": 123,
   "currency": "EUR",
+  "mcc": "0742",
+  "merchantName": "Merchant Name Inc",
   "merchantRefNum": "Ref-1234",
   "merchantUrl": "https://mysite.com",
   "card": {
@@ -1171,6 +1176,7 @@ The best solution will depend on your business and the type of goods and service
   "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
   "authenticationPurpose": "PAYMENT_TRANSACTION",
   "maxAuthorizationsForInstalmentPayment": 2,
+  "threeDSecureServerTransactionId": "9411c7dc-72dc-4c2d-8dc6-eeb86e8d9532"
   "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
   "billingCycle": {
     "endDate": "2014-01-26",
@@ -1509,10 +1515,7 @@ When providing card information, merchants can provide either card details or a 
 
 |Element            |Type                       |Description |
 |---                |---                        |---        |
-|carrier            |enum                       |This is the shipment carrier. Possible values are:<ul><li>APC &ndash; APC Overnight</li><li>APS &ndash; Anpost</li><li>CAD &ndash; Canada Postal Service</li><li>DHL &ndash; DHL</li><li>FEX &ndash; Fedex</li><li>RML &ndash; Royal Mail</li><li>UPS &ndash; United Parcel Service</li><li>USPS &ndash; United States Postal Service</li><li>CLK &ndash; CityLink</li><li>EMS &ndash; EMS (US Postal Service)</li><li>NEX &ndash; Nexworldwide</li><li>OTHER</li></ul>|
 |shipMethod         |enum                       |This is the method of shipment. Possible values are:<ul><li>N &ndash; Next Day/Overnight</li><li>T &ndash; Two-Day Service</li><li>C &ndash; Lowest Cost</li><li>O &ndash; Other</li><li>S &ndash; Same Day</li></ul>|
-|recipientName      |string<br/>`length<=255`   |This is the name of the person receiving the goods.|
-|company            |string<br/>`length<=255`   |This is the company receiving the goods.|
 |street             |string<br/>`length<=50`    |This is the recipient's street address.|
 |street2            |string<br/>`length<=255`   |This is the second line of the street address in the shipping address, if required (e.g., apartment number).|
 |city               |string<br/>`length<=40`    |This is the city in which the recipient resides.|
@@ -1522,9 +1525,7 @@ When providing card information, merchants can provide either card details or a 
 
 ```apib
   "shippingDetails":{
-    "carrier":"UPS",
     "shipMethod":"N",
-    "recipientName":"Jane Smith",
     "street":"100 Queen Street West",
     "city":"Toronto",
     "state":"ON",
@@ -1807,6 +1808,8 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
+              "mcc": "0742",
+              "merchantName": "Merchant Name Inc",
               "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
@@ -1909,6 +1912,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                 "street": "My street 1",
                 "street2": "My street 2",
                 "zip": "CHY987"
+                "useAsShippingAddress": true
               },
               "shippingDetails": {
                 "city": "New York",
@@ -1926,6 +1930,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               },
               "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
               "threeDSecureVersion": "2.1.0"
+              "threeDSecureServerTransactionId": "9411c7dc-72dc-4c2d-8dc6-eeb86e8d9532"
              }
 
 + Request Authentication - Browser Flow with Issuer Challenge (application/json)
@@ -1979,6 +1984,9 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+              "mcc": "0742",
+              "merchantName": "Merchant Name Inc",
+
               "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
@@ -2080,6 +2088,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                 "street": "My street 1",
                 "street2": "My street 2",
                 "zip": "CHY987"
+                "useAsShippingAddress": true
               },
               "shippingDetails": {
                 "city": "New York",
@@ -2099,6 +2108,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "threeDSecureVersion": "2.1.0",
               "payload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ==",
               "sdkChallengePayload": "eyJtZXNzYWdlVHlwZSI6IkNSZXMiLCJtZXNzYWdlVmVyc2lvbiI6IjIuMS4wIiwidGhyZWVEU1NlcnZlclRyYW5zSUQiOiI4NWUxZDA1Mi1iM2NkLTRmM2YtOWVlZC1lMDdjYzQxOTk0OTkiLCJhY3NUcmFuc0lEIjoiM2QzZmVmMDUtMWJmMC00Yjk3LWEyYmUtMTk5MzQ0YTYwMDg4IiwiYWNzVWlUeXBlIjoiMDEiLCJjaGFsbGVuZ2VBZGRJbmZvIjoiQWRkaXRpb25hbCBpbmZvcm1hdGlvbiBvbiB3aHkgeW91IGFyZSBiZWluZyBjaGFsbGFuZ2VkISIsImNoYWxsZW5nZUNvbXBsZXRpb25JbmQiOiJOIiwiY2hhbGxlbmdlSW5mb0hlYWRlciI6Ik9UUCBIZWFkZXIiLCJjaGFsbGVuZ2VJbmZvTGFiZWwiOiJPVFAiLCJjaGFsbGVuZ2VJbmZvVGV4dCI6IlBsZWFzZSBlbnRlciB5b3VyIE9UUCIsImNoYWxsZW5nZUluZm9UZXh0SW5kaWNhdG9yIjoiTiIsImlzc3VlckltYWdlIjp7Im1lZGl1bSI6Imh0dHBzOi8vd3d3LmNhcmRpbmFsY29tbWVyY2UuY29tL2ltYWdlcy9jYXJkaW5hbC1sb2dvLnN2ZyIsImhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJleHRyYUhpZ2giOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmcifSwicHNJbWFnZSI6eyJtZWRpdW0iOiJodHRwczovL3d3dy5jYXJkaW5hbGNvbW1lcmNlLmNvbS9pbWFnZXMvY2FyZGluYWwtbG9nby5zdmciLCJoaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIiwiZXh0cmFIaWdoIjoiaHR0cHM6Ly93d3cuY2FyZGluYWxjb21tZXJjZS5jb20vaW1hZ2VzL2NhcmRpbmFsLWxvZ28uc3ZnIn0sInJlc2VuZEluZm9ybWF0aW9uTGFiZWwiOiJTZW5kIGEgbmV3IE9UUCIsInNka1RyYW5zSUQiOiIzNzYxODRjMS1hZmJkLTQ2NmMtYTRkZi01OTkwYTFjNTkxMDQiLCJzdWJtaXRBdXRoZW50aWNhdGlvbkxhYmVsIjoiU3VibWl0IiwidHJhbnNTdGF0dXMiOiJZIiwiYWNzQ291bnRlckF0b1MiOiIwMDAiLCJleHBhbmRJbmZvTGFiZWwiOiJXaHkgdXNlIDNEUyBTZWN1cmU/Pz8/Pz8/Pz8/PyIsImV4cGFuZEluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEhISEhISEhISEhIiwid2h5SW5mb0xhYmVsIjoiV2h5IHVzZSAzRFMgU2VjdXJlPyIsIndoeUluZm9UZXh0IjoiWW91IHBheSBsb3dlciBpbnRlcmNoYW5nZSByYXRlcyBhbmQgZ2V0IGNoYXJnZWJhY2sgcHJvdGVjdGlvbiEifQ=="
+              "threeDSecureServerTransactionId": "9411c7dc-72dc-4c2d-8dc6-eeb86e8d9532"
              }
 
 + Request Authentication - Browser Flow with Fallback to 1.0 (application/json)
@@ -2152,6 +2162,8 @@ Click on **Authentications** above to see three examples of a browser-based Auth
               "authenticationPurpose": "PAYMENT_TRANSACTION",
               "maxAuthorizationsForInstalmentPayment": 2,
               "initialPurchaseTime": "2019-01-21T14:47:31.540Z",
+              "mcc": "0742",
+              "merchantName": "Merchant Name Inc",
               "billingCycle": {
                 "endDate": "2014-01-26",
                 "frequency": 1
@@ -2320,6 +2332,7 @@ This is how you look up an Authentication.
                 "street": "My street 1",
                 "street2": "My street 2",
                 "zip": "CHY987"
+                "useAsShippingAddress": true
               },
               "shippingDetails": {
                 "city": "New York",
@@ -2337,6 +2350,7 @@ This is how you look up an Authentication.
               },
               "directoryServerTransactionId": "123e4567-e89b-12d3-a456-4266554456745",
               "threeDSecureVersion": "2.1.0"
+              "threeDSecureServerTransactionId": "9411c7dc-72dc-4c2d-8dc6-eeb86e8d9532"
              }
 
 # Data Structures
@@ -2347,6 +2361,12 @@ This is how you look up an Authentication.
     _Read Only_, _length<=36_
     
 + `deviceFingerprintingId`:`123e4567-e89b-12d3-a456-426655440000` (string, required) - This is the UUID used with device fingerprinting.
+
++ `mcc`:`0742` (string) - This overrides the static configured merchant code for the specific authentication request.
+    _length=4_
+
++ `merchantName`:`Merchant Name Inc` (string) - This overrides the static configured merchant name for the specific authentication request.
+    _min=1_ _max=25_
 
 + `merchantRefNum`:`P1234` (string, required) - This is the merchant reference number created by the merchant and submitted as part of the request. It must be unique for each request.
     _length<=255_
@@ -2406,6 +2426,9 @@ This is how you look up an Authentication.
 
 + `threeDSecureVersion`:`2.1.0` (string) - This is the 3D Secure protocol version, returned in the response. **Note:** If version 2 is not available for the card provided, the value defaults to 1.0.2.|
     _Read Only_, _min=5_ _max=8_
+
++ `threeDSecureServerTransactionId`:`2.1.0` (string) -  The 3D Secure Server transaction Id.|
+    _length=36_
 
 + `directoryServerTransactionId`:`123e4567-e89b-12d3-a456-4266554456745` (string) - This is the directory server transaction ID required for Mastercard. **Note:** This exists only for 3D Secure 2.
     _Read Only_, _length<=36_
@@ -2695,22 +2718,6 @@ This is how you look up an Authentication.
 
     + Properties
     
-        + `carrier`:`CAD` (enum) - This is the shipment carrier.
-        
-            + Members
-                + `APC – APC Overnight`
-                + `APS – Anpost`
-                + `CAD – Canada Postal Service`
-                + `DHL – DHL`
-                + `FEX – Fedex`
-                + `RML – Royal Mail`
-                + `UPS – United Parcel Service`
-                + `USPS – United States Postal Service`
-                + `CLK – CityLink`
-                + `EMS – EMS (US Postal Service)`
-                + `NEX – Nexworldwide`
-                + `OTHER`
-                
         + `shipMethod`:`T` (enum) - This is the shipment method.
         
             + Members
@@ -2720,10 +2727,6 @@ This is how you look up an Authentication.
                 + `O – Other`
                 + `S - Same Day`
                 
-        + `recipientName`:`Jane Smith` (string) - This is the name of the person receiving the goods.
-            _length<=255_
-        + `company`:`Company Inc.` (string) - This is the company receiving the goods.
-            _length<=255_
         + `street`:`102 Queen Street West` (string) - This is the first line of the street address in the shipping address.
             _length<=50_
         + `street2`:`Apt. 55` (string) - This is the second line of the street address in the shipping address, if required (e.g., apartment number).
