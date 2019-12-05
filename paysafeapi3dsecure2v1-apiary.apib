@@ -1154,6 +1154,7 @@ The best solution will depend on your business and the type of goods and service
     "street": "My street 1",
     "street2": "My street 2",
     "zip": "CHY987"
+    "useAsShippingAddress": true
   },
   "shippingDetails": {
     "city": "New York",
@@ -1276,6 +1277,7 @@ The best solution will depend on your business and the type of goods and service
 |state              |string<br/>`length<=40`          |See [Province Codes](#provincecodes) or [State Codes](#statecodes) for Canada or the United States.|
 |country            |enum  <br/>`length=2`            |See [Country Codes](#countrycodes).|
 |zip                |string<br/>`length<=10`          |This is the postal/zip code in the billing address.|
+|useAsShippingAddress|boolean                         |Indicates if the billingDetails will be used as shippingDetails as well.|
 
 ```apib
   "billingDetails":{
@@ -1284,6 +1286,7 @@ The best solution will depend on your business and the type of goods and service
     "state":"ON",
     "country":"CA",
     "zip":"M5H 2N2"
+    "useAsShippingAddress": true
   }
 ```
 
@@ -1762,125 +1765,127 @@ Click on **Authentications** above to see three examples of a browser-based Auth
     + Attributes
     
         + Include Authentication Request
-        
-    + Body
+
+     + Body
 
             {
-              "amount": 123,
-              "currency": "EUR",
-              "merchantRefNum": "Ref-1234",
-              "merchantUrl": "https://mysite.com",
-              "card": {
-                "cardExpiry": {
-                  "month": 12,
-                  "year": 2019
-                },
-                "cardNum": "4111111111111111",
-                "holderName": "John Smith"
-              },
-              "billingDetails": {
-                "city": "New York",
-                "country": "US",
-                "state": "AL",
-                "street": "My street 1",
-                "street2": "My street 2",
-                "zip": "CHY987"
-              },
-              "shippingDetails": {
-                "city": "New York",
-                "country": "US",
-                "state": "AL",
-                "street": "My street 1",
-                "street2": "My street 2",
-                "zip": "CHY987",
-                "shipMethod": "S"
-              },
-              "profile": {
-                "cellPhone": "+154657854697",
-                "email": "example@example.com",
-                "phone": "+154657854697"
-              },
-              "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
-              "deviceChannel": "BROWSER",
-              "requestorChallengePreference": "NO_PREFERENCE",
-              "messageCategory": "PAYMENT",
-              "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
-              "authenticationPurpose": "PAYMENT_TRANSACTION",
-              "maxAuthorizationsForInstalmentPayment": 2,
-              "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
-              "mcc": "0742",
-              "merchantName": "Merchant Name Inc",
-              "billingCycle": {
-                "endDate": "2014-01-26",
-                "frequency": 1
-              },
-              "orderItemDetails": {
-                "preOrderItemAvailabilityDate": "2014-01-26",
-                "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
-                "reorderItemsIndicator": "FIRST_TIME_ORDER",
-                "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
-              },
-              "purchasedGiftCardDetails": {
-                "amount": 1234,
-                "count": 2,
-                "currency": "USD"
-              },
-              "userAccountDetails": {
-                "addCardAttemptsForLastDay": 1,
-                "changedDate": "2014-01-26",
-                "changedRange": "DURING_TRANSACTION",
-                "createdDate": "2014-01-26",
-                "createdRange": "NO_ACCOUNT",
-                "passwordChangedDate": "2014-01-26",
-                "passwordChangedRange": "NO_CHANGE",
-                "paymentAccountDetails": {
-                  "createdRange": "NO_ACCOUNT",
-                  "createdDate": "2014-01-26"
-                },
-                "priorThreeDSAuthentication": {
-                  "data": "Some up to 2048 bytes undefined data",
-                  "method": "FRICTIONLESS_AUTHENTICATION",
-                  "id": "123e4567-e89b-12d3-a456-426655440000",
-                  "time": "2014-01-26T10:32:28Z"
-                },
-                "shippingDetailsUsage": {
-                  "cardHolderNameMatch": true,
-                  "initialUsageDate": "2014-01-26",
-                  "initialUsageRange": "CURRENT_TRANSACTION"
-                },
-                "suspiciousAccountActivity": true,
-                "totalPurchasesSixMonthCount": 1,
-                "transactionCountForPreviousDay": 1,
-                "transactionCountForPreviousYear": 3,
-                "travelDetails": {
-                  "isAirTravel": true,
-                  "airlineCarrier": "Wizz air",
-                  "departureDate": "2014-01-26",
-                  "destination": "SOF",
-                  "origin": "BCN",
-                  "passengerFirstName": "John",
-                  "passengerLastName": "Smith"
-                },
-                "userLogin": {
-                  "authenticationMethod": "NO_LOGIN",
-                  "data": "Some up to 2048 bytes undefined data",
-                  "time": "2014-01-26T10:32:28Z"
+              {
+                  "amount": 123,
+                  "currency": "EUR",
+                  "merchantRefNum": "Ref-1234",
+                  "merchantUrl": "https://mysite.com",
+                  "card": {
+                    "cardExpiry": {
+                      "month": 12,
+                      "year": 2019
+                    },
+                    "cardNum": "4111111111111111",
+                    "holderName": "John Smith"
+                  },
+                  "billingDetails": {
+                    "city": "New York",
+                    "country": "US",
+                    "state": "AL",
+                    "street": "My street 1",
+                    "street2": "My street 2",
+                    "zip": "CHY987"
+                  },
+                  "shippingDetails": {
+                    "city": "New York",
+                    "country": "US",
+                    "state": "AL",
+                    "street": "My street 1",
+                    "street2": "My street 2",
+                    "zip": "CHY987",
+                    "shipMethod": "S"
+                  },
+                  "profile": {
+                    "cellPhone": "+154657854697",
+                    "email": "example@example.com",
+                    "phone": "+154657854697"
+                  },
+                  "deviceFingerprintingId": "123e4567-e89b-12d3-a456-426655440000",
+                  "deviceChannel": "BROWSER",
+                  "requestorChallengePreference": "NO_PREFERENCE",
+                  "messageCategory": "PAYMENT",
+                  "transactionIntent": "GOODS_OR_SERVICE_PURCHASE",
+                  "authenticationPurpose": "PAYMENT_TRANSACTION",
+                  "maxAuthorizationsForInstalmentPayment": 2,
+                  "initialPurchaseTime": "2014-01-21T14:47:31.540Z",
+                  "mcc": "0742",
+                  "merchantName": "Merchant Name Inc",
+                  "billingCycle": {
+                    "endDate": "2014-01-26",
+                    "frequency": 1
+                  },
+                  "orderItemDetails": {
+                    "preOrderItemAvailabilityDate": "2014-01-26",
+                    "preOrderPurchaseIndicator": "MERCHANDISE_AVAILABLE",
+                    "reorderItemsIndicator": "FIRST_TIME_ORDER",
+                    "shippingIndicator": "SHIP_TO_BILLING_ADDRESS"
+                  },
+                  "purchasedGiftCardDetails": {
+                    "amount": 1234,
+                    "count": 2,
+                    "currency": "USD"
+                  },
+                  "userAccountDetails": {
+                    "addCardAttemptsForLastDay": 1,
+                    "changedDate": "2014-01-26",
+                    "changedRange": "DURING_TRANSACTION",
+                    "createdDate": "2014-01-26",
+                    "createdRange": "NO_ACCOUNT",
+                    "passwordChangedDate": "2014-01-26",
+                    "passwordChangedRange": "NO_CHANGE",
+                    "paymentAccountDetails": {
+                      "createdRange": "NO_ACCOUNT",
+                      "createdDate": "2014-01-26"
+                    },
+                    "priorThreeDSAuthentication": {
+                      "data": "Some up to 2048 bytes undefined data",
+                      "method": "FRICTIONLESS_AUTHENTICATION",
+                      "id": "123e4567-e89b-12d3-a456-426655440000",
+                      "time": "2014-01-26T10:32:28Z"
+                    },
+                    "shippingDetailsUsage": {
+                      "cardHolderNameMatch": true,
+                      "initialUsageDate": "2014-01-26",
+                      "initialUsageRange": "CURRENT_TRANSACTION"
+                    },
+                    "suspiciousAccountActivity": true,
+                    "totalPurchasesSixMonthCount": 1,
+                    "transactionCountForPreviousDay": 1,
+                    "transactionCountForPreviousYear": 3,
+                    "travelDetails": {
+                     "isAirTravel": true,
+                      "airlineCarrier": "Wizz air",
+                      "departureDate": "2014-01-26",
+                      "destination": "SOF",
+                      "origin": "BCN",
+                      "passengerFirstName": "John",
+                      "passengerLastName": "Smith"
+                    },
+                    "userLogin": {
+                      "authenticationMethod": "NO_LOGIN",
+                      "data": "Some up to 2048 bytes undefined data",
+                      "time": "2014-01-26T10:32:28Z"
+                    }
+                  },
+                  "browserDetails": {
+                    "acceptHeader": "*/*",
+                    "colorDepthBits": "24",
+                    "customerIp": "207.48.141.20",
+                    "javascriptEnabled": true,
+                    "javaEnabled": true,
+                    "language": "en-US",
+                    "screenHeight": 768,
+                    "screenWidth": 1024,
+                    "timezoneOffset": 240,
+                    "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
+                  }
                 }
-              },
-              "browserDetails": {
-                "acceptHeader": "*/*",
-                "colorDepthBits": "24",
-                "customerIp": "207.48.141.20",
-                "javascriptEnabled": true,
-                "javaEnabled": true,
-                "language": "en-US",
-                "screenHeight": 768,
-                "screenWidth": 1024,
-                "timezoneOffset": 240,
-                "userAgent": "Mozilla/4.0 (compatible; Win32; WinHttp.WinHttpRequest.5)"
-              }
             }
-            
+
 + Response 200 (application/json)
 
     + Body
@@ -2266,6 +2271,7 @@ Click on **Authentications** above to see three examples of a browser-based Auth
                 "street": "My street 1",
                 "street2": "My street 2",
                 "zip": "CHY987"
+                "useAsShippingAddress": true
               },
               "shippingDetails": {
                 "city": "New York",
@@ -2528,7 +2534,9 @@ This is how you look up an Authentication.
             _length=2_        
         + zip:`M1M 1M1` (string) - This is the postal/zip code in the billing address.
             _length<=10_
-    
+        + useAsShippingAddress:`true` (boolean) - Indicates if the billingDetails will be used as shippingDetails as well.
+ 
+ 
 ## Browser Details
 
 + `browserDetails` (object) - These are the browser details.
