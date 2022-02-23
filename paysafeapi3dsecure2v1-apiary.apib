@@ -10,7 +10,7 @@ HOST: https://api.test.paysafe.com/threedsecure/
 | 1.0       | May 2019    | <ul><li>Document release</li></ul>|
 
 # Overview 
-
+This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card.
 Paysafe 3D Secure 2 offers speed and security by allowing card issuers to authenticate cardholders using contextual data, 
 requiring additional customer verification only for a small percentage of high-risk transactions. 
 This process allows for faster consumer checkout while also adhering to the strong customer authentication (SCA) requirements.  
@@ -897,7 +897,7 @@ When providing card information, merchants can provide either card details or a 
 |---                |---                                |---          |
 |holderName         |string<br/>`length<=45`            |This is the name of the card holder. |
 |cardNum            |string<br/>`length=8-20`           |This is the card number used for the request. |
-|cardBin            |string<br/>`length<=6`             |This is the card Bank Identification Number (BIN). This is typically the first 6 digits of the card. |
+|cardBin            |string<br/>`length<=6`             |These are the first 6 digits of the card Bank Identification Number (BIN), i.e. the first 6 digits of the card number. |
 |cardExpiry         |[object](#cardexpiryobject)        |This is the card's expiry date.|
 |type               |enum                               |This is the type of card used for the request, returned in the response. Possible values are:<br/><ul><li>AM &ndash; American Express</li><li>MC &ndash; Mastercard</li><li>VI &ndash; Visa</li></ul>
 |lastDigits         |string<br/>`length=4`              |This is the last four digits of the card used for the request.|
